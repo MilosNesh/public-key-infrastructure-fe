@@ -53,8 +53,6 @@ export class RegistrationComponent {
     return null;
   }
 
-
-  
   passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {
     const password = control.value;
     if (!password) return null;

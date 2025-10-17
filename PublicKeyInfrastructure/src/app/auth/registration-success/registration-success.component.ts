@@ -13,4 +13,8 @@ export class RegistrationSuccessComponent {
   back(){
     this.router.navigate(["registration"])
   }
+
+  login(){
+    this.router.navigate(["login"])
+  }
 }
