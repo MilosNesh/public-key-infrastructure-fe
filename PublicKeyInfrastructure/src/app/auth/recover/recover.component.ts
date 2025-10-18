@@ -1,17 +1,16 @@
+import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { CommonModule } from '@angular/common';
-import zxcvbn from 'zxcvbn';
-import { User } from '../../models/user.model';
+import { MatInputModule } from '@angular/material/input';
 import { AuthService } from '../auth.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import zxcvbn from 'zxcvbn';
+import { RecoveryData } from '../../models/recovery-data.model';
 
 @Component({
-  selector: 'app-registration',
+  selector: 'app-recover',
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -20,24 +19,22 @@ import { Router } from '@angular/router';
     MatFormFieldModule,
     FormsModule,
   ],
-  templateUrl: './registration.component.html',
-  styleUrl: './registration.component.css'
+  templateUrl: './recover.component.html',
+  styleUrl: './recover.component.css'
 })
-export class RegistrationComponent {
-  registrationForm!: FormGroup;
+export class RecoverComponent {
+  recoveryForm!: FormGroup
   passwordStrength: number = 0;
   passwordFeedback: string = '';
+  token: string = '';
+  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
-  constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) { }
-
-  ngOnInit(): void {
-    this.registrationForm = this.fb.group({
+  ngOnInit() {
+    this.token = this.route.snapshot.paramMap.get('token')!;
+    this.recoveryForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8), this.passwordStrengthValidator]],
-      confirmPassword: ['', [Validators.required]],
-      name: ['', [Validators.required]],
-      surname: ['', [Validators.required]],
-      organization: ['', [Validators.required]]
+      confirmPassword: ['', Validators.required]
     }, { validators: this.passwordsMatchValidator });
   }
 
@@ -62,7 +59,7 @@ export class RegistrationComponent {
   }
 
   onPasswordInput(): void {
-    const password = this.registrationForm.get('password')?.value;
+    const password = this.recoveryForm.get('password')?.value;
     if (password) {
       const result = zxcvbn(password);
       this.passwordStrength = result.score;
@@ -74,21 +71,18 @@ export class RegistrationComponent {
   }
 
   onSubmit(): void {
-    if (this.registrationForm!.valid) {
-      var user: User = {
-        name: this.registrationForm.value.name,
-        surname: this.registrationForm.value.surname,
-        email: this.registrationForm.value.email,
-        password: this.registrationForm.value.password,
-        organization: this.registrationForm.value.organization
+    if (this.recoveryForm!.valid) {
+      var recoveryData: RecoveryData = {
+        email: this.recoveryForm.value.email,
+        password: this.recoveryForm.value.password,
       }
       
-      this.authService.register(user).subscribe({
+      this.authService.recover(recoveryData, this.token).subscribe({
         next: (res) => {
-          this.router.navigate(["registration-success"]);
+          this.router.navigate(["login"]);
         }
-      })
-      
+      }) 
     }
   }
+
 }

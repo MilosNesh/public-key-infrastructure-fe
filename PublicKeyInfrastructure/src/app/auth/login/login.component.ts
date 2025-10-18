@@ -31,6 +31,8 @@ export class LoginComponent {
   errorMessage =  ""
   captchaToken: string | null = null;
   siteKey=""
+  recoveryMessage = ""
+
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router) { }
 
   ngOnInit(): void {
@@ -57,7 +59,7 @@ export class LoginComponent {
       password: this.loginForm.value.password,
       captcha: this.captchaToken
     }
-    
+    this.recoveryMessage = ""
     this.authService.login(loginDetails).subscribe({
       next: (res) => {
         console.log("login")
@@ -67,5 +69,17 @@ export class LoginComponent {
       }
     })
     
+  }
+
+  sendLink() {
+    if(this.loginForm.value.email === ''){
+      this.recoveryMessage = "Enter email if you want to recover your account."
+      return
+    }
+    this.authService.sendLink(this.loginForm.value.email).subscribe({
+      next: (res) => {
+        this.recoveryMessage = "Check your email we sent you a recovery link."
+      }
+    })
   }
 }

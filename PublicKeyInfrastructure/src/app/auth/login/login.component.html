@@ -23,6 +23,8 @@
         [siteKey]="siteKey">
     </re-captcha>
 
+    <button (click)="sendLink()">Forgot password</button>
+    <p>{{recoveryMessage}}</p>
     <p>{{errorMessage}}</p>
     <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || !captchaToken">Sign in</button>
   </form>
