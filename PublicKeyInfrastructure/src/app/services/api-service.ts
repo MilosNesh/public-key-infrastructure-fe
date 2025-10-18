@@ -1,6 +1,7 @@
 // src/app/services/api.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { CsrUploadResponse } from '../models/csr-upload-response.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -13,7 +14,7 @@ export class ApiService {
     formData.append('file', file);
     formData.append('userId', userId.toString());
 
-    return this.http.post<any>(`${this.backendUrl}/api/csr`, formData);
+    return this.http.post<CsrUploadResponse>(`${this.backendUrl}/api/csr`, formData);
   }
 
   listIssuers() {

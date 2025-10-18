@@ -88,10 +88,11 @@ export class CsrFormComponent implements OnInit{
 
     this.api.uploadCSR(this.uploadedCsrFile, v.userId!).subscribe({
       next: (res) => {
-        this.successMessage = typeof res === 'string' ? res : 'CSR uspešno poslat!';
+        this.successMessage = `CSR uspešno poslat! ID: ${res.csrId}, Fajl: ${res.fileName} (${res.fileSize} bytes)`;
         this.issuing = false;
       },
       error: (err) => {
+        console.error('Upload error:', err);
         this.error = 'Greška pri slanju: ' + (err?.error?.message || err?.error || err?.message || 'Nepoznata greška');
         this.issuing = false;
       }
