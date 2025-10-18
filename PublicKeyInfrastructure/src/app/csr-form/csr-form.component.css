@@ -1,0 +1,14 @@
+/* src/app/components/csr-form/csr-form.component.css */
+.card { max-width: 980px; margin: 24px auto; padding: 16px; border: 1px solid #e5e7eb; border-radius: 12px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+.section { display: grid; gap: 8px; border: 1px solid #eee; padding: 12px; border-radius: 10px; }
+.section h3 { margin: 0 0 8px; font-size: 16px; }
+label { display: grid; gap: 6px; font-size: 13px; }
+input, select, textarea { padding: 8px; border: 1px solid #ddd; border-radius: 8px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+.checkbox { align-items: center; grid-auto-flow: column; justify-content: start; }
+.actions { display: flex; gap: 8px; margin: 12px 0; }
+button { padding: 8px 12px; border-radius: 8px; border: 1px solid #ddd; background: #0ea5e9; color: white; cursor: pointer; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+.output textarea { width: 100%; min-height: 180px; }
+.error { color: #b91c1c; background: #fee2e2; padding: 8px; border-radius: 8px; }
+.hint { color: #9a3412; font-size: 12px; }

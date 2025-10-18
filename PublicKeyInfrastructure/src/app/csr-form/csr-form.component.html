@@ -1,0 +1,87 @@
+<!-- src/app/components/csr-form/csr-form.component.html -->
+<div class="card">
+  <h2>Generate CSR & Issue End-Entity Certificate</h2>
+
+  <form [formGroup]="form" class="grid">
+    <div class="section">
+      <h3>Subject</h3>
+      <label>CN* <input formControlName="cn" placeholder="app.ftn.ac.rs"></label>
+      <label>O   <input formControlName="o"  placeholder="FTN"></label>
+      <label>OU  <input formControlName="ou" placeholder="IT Department"></label>
+      <label>C   <input formControlName="c"  maxlength="2" placeholder="RS"></label>
+      <label>Email <input formControlName="email" placeholder="user@ftn.ac.rs"></label>
+    </div>
+
+    <div class="section">
+      <h3>SAN (Subject Alternative Name)</h3>
+      <label>DNS (zarezom) <input formControlName="sanDns" placeholder="api.ftn.ac.rs,www.ftn.ac.rs"></label>
+      <label>IP  (zarezom) <input formControlName="sanIp"  placeholder="192.168.1.10"></label>
+    </div>
+
+    <div class="section">
+      <h3>Crypto</h3>
+      <label>Modulus
+        <select formControlName="modulusLength">
+          <option [value]="2048">2048</option>
+          <option [value]="3072">3072</option>
+          <option [value]="4096">4096</option>
+        </select>
+      </label>
+      <label>Hash
+        <select formControlName="hash">
+          <option>SHA-256</option>
+          <option>SHA-384</option>
+        </select>
+      </label>
+      <label class="checkbox">
+        <input type="checkbox" formControlName="extractable">
+        Allow private key download (.key)
+      </label>
+    </div>
+
+    <div class="section">
+      <h3>Issuer & Validity</h3>
+      <label>Issuer CA*
+        <select formControlName="issuerAlias">
+          <option value="" disabled selected>-- odaberi --</option>
+          <option *ngFor="let a of issuers" [value]="a">{{ a }}</option>
+        </select>
+      </label>
+      <label>Not Before* <input type="datetime-local" formControlName="notBefore"></label>
+      <label>Not After*  <input type="datetime-local" formControlName="notAfter"></label>
+      <div class="hint" *ngIf="form.hasError('dateRange')">NotAfter mora biti posle NotBefore.</div>
+    </div>
+  </form>
+
+  <div class="actions">
+    <button (click)="onGenerate()" [disabled]="form.invalid">Generiši CSR</button>
+    <button (click)="onIssue()" [disabled]="!generatedCsr || issuing">Izdaј sertifikat</button>
+  </div>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <div class="output" *ngIf="generatedCsr">
+    <h3>CSR (PEM)</h3>
+    <textarea readonly [value]="generatedCsr"></textarea>
+    <div class="actions">
+      <button (click)="onDownload(generatedCsr!, 'request.csr')">Preuzmi CSR</button>
+    </div>
+  </div>
+
+  <div class="output" *ngIf="generatedKey">
+    <h3>Private Key (PKCS#8 PEM)</h3>
+    <textarea readonly [value]="generatedKey"></textarea>
+    <div class="actions">
+      <button (click)="onDownload(generatedKey!, 'private.key')">Preuzmi privatni ključ</button>
+    </div>
+  </div>
+
+  <div class="output" *ngIf="issuedCert">
+    <h3>Issued Certificate (PEM)</h3>
+    <textarea readonly [value]="issuedCert"></textarea>
+    <div class="actions">
+      <button (click)="onDownload(issuedCert!, 'certificate.pem')">Preuzmi sertifikat</button>
+      <button *ngIf="issuedChain" (click)="onDownload(issuedChain!, 'chain.pem')">Preuzmi lanac</button>
+    </div>
+  </div>
+</div>
