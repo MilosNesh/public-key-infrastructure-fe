@@ -1,0 +1,21 @@
+[ req ]
+default_bits       = 2048
+distinguished_name = req_distinguished_name
+req_extensions     = v3_req
+prompt             = no
+
+[ req_distinguished_name ]
+CN = Nenad Dubovac
+O  = FTN Novi Sad
+OU = Katedra za informatiku
+C  = RS
+E  = nenad.dubovac@example.com
+
+[ v3_req ]
+keyUsage = digitalSignature, keyEncipherment
+extendedKeyUsage = clientAuth
+subjectAltName = @alt_names
+
+[ alt_names ]
+DNS.1 = nenad-ftn.rs
+DNS.2 = www.nenad-ftn.rs
