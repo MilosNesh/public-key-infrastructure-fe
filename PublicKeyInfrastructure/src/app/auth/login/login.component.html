@@ -1,0 +1,31 @@
+<div class="login-container">
+  <h2>Login</h2>
+  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+  
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email address</mat-label>
+      <input matInput formControlName="email" type="email" required>
+      <mat-error *ngIf="loginForm.controls['email'].invalid && loginForm.controls['email'].touched">
+        Enter a valid email address
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Password</mat-label>
+      <input matInput formControlName="password" type="password">
+      <mat-error *ngIf="loginForm.get('password')?.hasError('required') && loginForm.controls['password'].touched">
+        Enter a password
+      </mat-error>
+    </mat-form-field>
+
+    <re-captcha 
+        (resolved)="onCaptchaResolved($event)" 
+        [siteKey]="siteKey">
+    </re-captcha>
+
+    <button (click)="sendLink()">Forgot password</button>
+    <p>{{recoveryMessage}}</p>
+    <p>{{errorMessage}}</p>
+    <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || !captchaToken">Sign in</button>
+  </form>
+</div>
