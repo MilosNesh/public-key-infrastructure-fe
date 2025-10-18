@@ -1,0 +1,47 @@
+<div class="recovery-container">
+  <h2>Reset password</h2>
+  <form [formGroup]="recoveryForm" (ngSubmit)="onSubmit()">
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email address</mat-label>
+      <input matInput formControlName="email" type="email" required>
+      <mat-error *ngIf="recoveryForm.controls['email'].invalid && recoveryForm.controls['email'].touched">
+        Enter a valid email address
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Password</mat-label>
+      <input matInput formControlName="password" type="password" required (input)="onPasswordInput()">
+      <mat-error *ngIf="recoveryForm.get('password')?.hasError('required') && recoveryForm.controls['password'].touched">
+        Enter a password
+      </mat-error>
+      <mat-error *ngIf="recoveryForm.get('password')?.hasError('weakPassword') && recoveryForm.controls['password'].touched">
+        Password is weak
+      </mat-error>
+    </mat-form-field>
+
+    <div class="password-strength-bar">
+      <div [ngClass]="{
+        'strength-weak': passwordStrength <= 1,
+        'strength-medium': passwordStrength == 2,
+        'strength-good': passwordStrength == 3,
+        'strength-strong': passwordStrength == 4
+      }"></div>
+    </div>
+    <small>{{ passwordFeedback }}</small>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Confirm password</mat-label>
+      <input matInput formControlName="confirmPassword" type="password" required>
+      <mat-error *ngIf="recoveryForm.get('confirmPassword')?.hasError('required') && recoveryForm.controls['confirmPassword'].touched">
+        Enter a confirm password
+      </mat-error>
+      <mat-error *ngIf="recoveryForm.get('confirmPassword')?.hasError('passwordsMismatch') && recoveryForm.controls['confirmPassword'].touched">
+        Passwords mismatch
+      </mat-error>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="recoveryForm.invalid">Reset</button>
+  </form>
+</div>
