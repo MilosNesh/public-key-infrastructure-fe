@@ -1,0 +1,5 @@
+//generisi kljuc
+openssl genrsa -out user.key 2048
+
+//generisi .pem na osnovu .cnf fajla
+openssl req -new -key user.key -out user.csr -config openssl.cnf -outform PEM
