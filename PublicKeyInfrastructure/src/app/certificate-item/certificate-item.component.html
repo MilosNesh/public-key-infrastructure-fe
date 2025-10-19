@@ -1,0 +1,57 @@
+<article class="cert-card" *ngIf="cert">
+  <header class="cert-header">
+    <div class="title">
+      <div class="alias">{{ cert.alias }}</div>
+      <div class="meta">
+        <span class="type">{{ certType }} CA</span>
+        <span class="serial">#{{ cert.serialNumber }}</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" (click)="downloadPem()" title="Preuzmi PEM">
+        📄 PEM
+      </button>
+      <button class="btn btn-outline" (click)="downloadDer()" title="Preuzmi CRT">
+        🔒 CRT
+      </button>
+      <button class="btn btn-primary" (click)="copyPem()" title="Kopiraj PEM">
+        📋 Kopiraj
+      </button>
+    </div>
+  </header>
+
+  <section class="cert-body">
+    <div class="row">
+      <div class="label">Subject</div>
+      <div class="value mono">{{ cert.subjectDN }}</div>
+    </div>
+
+    <div class="row">
+      <div class="label">Issuer</div>
+      <div class="value mono">{{ cert.issuerDN }}</div>
+    </div>
+
+    <div class="row small-grid">
+      <div>
+        <div class="label">Važi od</div>
+        <div class="value">{{ cert.notBefore | date:'yyyy-MM-dd HH:mm' }}</div>
+      </div>
+      <div>
+        <div class="label">Važi do</div>
+        <div class="value">{{ cert.notAfter | date:'yyyy-MM-dd HH:mm' }}</div>
+      </div>
+      <div>
+        <div class="label">Trajanje</div>
+        <div class="value">{{ daysBetween() }} dana</div>
+      </div>
+    </div>
+
+    <details class="pem-box">
+      <summary>📜 Prikaži PEM</summary>
+      <pre>{{ toPem(cert.certificatePEM) }}</pre>
+    </details>
+
+    <div class="message" *ngIf="cert.message">{{ cert.message }}</div>
+  </section>
+</article>

@@ -2,6 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { CsrUploadResponse } from '../models/csr-upload-response.model';
+import { CertificateResponse } from '../models/certificate-response';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -19,5 +20,9 @@ export class ApiService {
 
   listIssuers() {
     return this.http.get<string[]>(`${this.backendUrl}/api/ca/issuers`);
+  }
+
+  getAllRootCertificates() {
+    return this.http.get<CertificateResponse[]>(`${this.backendUrl}/api/ca/all`);
   }
 }
