@@ -1,3 +1,4 @@
+<div class="container">
 <div class="login-container">
   <h2>Login</h2>
   <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
@@ -23,9 +24,10 @@
         [siteKey]="siteKey">
     </re-captcha>
 
-    <button (click)="sendLink()">Forgot password</button>
+    <a (click)="sendLink()">Forgot password</a>
     <p>{{recoveryMessage}}</p>
     <p>{{errorMessage}}</p>
     <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || !captchaToken">Sign in</button>
   </form>
+</div>
 </div>

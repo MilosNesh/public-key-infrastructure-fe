@@ -1,9 +1,9 @@
-:host {
+/* :host {
   display: flex;
   justify-content: center;   
   align-items: center;       
   height: 100vh;           
-}
+} */
 
 .success-container {
   text-align: center;
@@ -22,4 +22,19 @@
 .success-container p {
   font-size: 16px;
   margin-bottom: 10px;
+}
+button {
+  margin-left: 10px;
+  padding: 10px;
+  border-radius: 5%;
+  font-size: 16px;
+}
+
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: url('https://png.pngtree.com/background/20211217/original/pngtree-abstract-background-of-matrix-digital-space-picture-image_1593623.jpg') no-repeat center center/cover;
 }

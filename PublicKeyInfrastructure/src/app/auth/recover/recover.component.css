@@ -54,3 +54,11 @@ button {
   width: 100%;
   background-color: green;
 }
+.container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: url('https://png.pngtree.com/background/20211217/original/pngtree-abstract-background-of-matrix-digital-space-picture-image_1593623.jpg') no-repeat center center/cover;
+}
