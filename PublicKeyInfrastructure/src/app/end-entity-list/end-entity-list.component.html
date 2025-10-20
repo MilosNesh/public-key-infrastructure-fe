@@ -1,5 +1,5 @@
 <div class="certificate-list">
-  <h2>Root i Intermediate CA Sertifikati</h2>
+  <h2>End Entity Sertifikati</h2>
 
   <!-- Loading indicator -->
   <div *ngIf="loading" class="loading">
@@ -22,6 +22,6 @@
 
   <!-- No certificates message -->
   <div *ngIf="!loading && !error && certificates.length === 0" class="no-certificates">
-    Nema dostupnih Root CA sertifikata.
+    Nema dostupnih End Entity sertifikata.
   </div>
 </div>

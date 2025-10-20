@@ -35,4 +35,8 @@ export class ApiService {
   createRootCA(request: ExtendedRequest): Observable<CertificateResponse> {
     return this.http.post<CertificateResponse>(`${this.backendUrl}/api/ca/root`, request);
   }
+
+  getAllEndEntityCertificates(){
+    return this.http.get<CertificateResponse[]>(`${this.backendUrl}/api/ca/end-entity`);
+  }
 }
