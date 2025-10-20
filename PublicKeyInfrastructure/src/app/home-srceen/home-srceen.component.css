@@ -1,0 +1,35 @@
+.home-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: url('https://png.pngtree.com/background/20211217/original/pngtree-abstract-background-of-matrix-digital-space-picture-image_1593623.jpg') no-repeat center center/cover;
+  color: white;
+  text-align: center;
+}
+
+.welcome-message {
+  font-size: 2.5rem;
+  margin-bottom: 20px;
+}
+
+.buttons {
+  display: flex;
+  gap: 20px;
+}
+
+.btn {
+  padding: 15px 30px;
+  font-size: 1.2rem;
+  background-color: rgba(0, 0, 0, 0.5);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.btn:hover {
+  background-color: rgba(0, 0, 0, 0.7);
+}

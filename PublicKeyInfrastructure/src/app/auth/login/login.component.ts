@@ -63,6 +63,9 @@ export class LoginComponent {
     this.authService.login(loginDetails).subscribe({
       next: (res) => {
         console.log("login")
+        console.log(res)
+        localStorage.setItem("pki_token", res)
+        this.router.navigate(["password-manager"])
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage = err.error;
