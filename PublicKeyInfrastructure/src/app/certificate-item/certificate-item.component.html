@@ -1,9 +1,9 @@
 <article class="cert-card" *ngIf="cert">
   <header class="cert-header">
     <div class="title">
-      <div class="alias">{{ cert.alias }}</div>
+      <div class="alias">{{ cert.alias }} 22</div>
       <div class="meta">
-        <span class="type">{{ certType }} CA</span>
+        <span class="type">{{ certType }}</span>
         <span class="serial">#{{ cert.serialNumber }}</span>
       </div>
     </div>
@@ -22,16 +22,56 @@
   </header>
 
   <section class="cert-body">
+    <!-- Basic Certificate Info -->
     <div class="row">
-      <div class="label">Subject</div>
+      <div class="label">Alias</div>
+      <div class="value">{{ cert.alias }}</div>
+    </div>
+
+    <div class="row" *ngIf="cert.issuerAlias">
+      <div class="label">Issuer Alias</div>
+      <div class="value">{{ cert.issuerAlias }}</div>
+    </div>
+
+    <!-- Subject Information -->
+    <div class="section-header">Subject Information</div>
+    <div class="row">
+      <div class="label">Subject DN</div>
       <div class="value mono">{{ cert.subjectDN }}</div>
     </div>
 
+    <div class="row small-grid">
+      <div *ngIf="cert.commonName">
+        <div class="label">Common Name</div>
+        <div class="value">{{ cert.commonName }}</div>
+      </div>
+      <div *ngIf="cert.organization">
+        <div class="label">Organization</div>
+        <div class="value">{{ cert.organization }}</div>
+      </div>
+      <div *ngIf="cert.organizationalUnit">
+        <div class="label">Organizational Unit</div>
+        <div class="value">{{ cert.organizationalUnit }}</div>
+      </div>
+      <div *ngIf="cert.country">
+        <div class="label">Country</div>
+        <div class="value">{{ cert.country }}</div>
+      </div>
+      <div *ngIf="cert.email">
+        <div class="label">Email</div>
+        <div class="value">{{ cert.email }}</div>
+      </div>
+    </div>
+
+    <!-- Issuer Information -->
+    <div class="section-header">Issuer Information</div>
     <div class="row">
-      <div class="label">Issuer</div>
+      <div class="label">Issuer DN</div>
       <div class="value mono">{{ cert.issuerDN }}</div>
     </div>
 
+    <!-- Certificate Properties -->
+    <div class="section-header">Certificate Properties</div>
     <div class="row small-grid">
       <div>
         <div class="label">Važi od</div>
@@ -47,11 +87,68 @@
       </div>
     </div>
 
+    <!-- CA Information -->
+    <div class="row small-grid" *ngIf="cert.isCA !== undefined">
+      <div>
+        <div class="label">Certificate Type</div>
+        <div class="value">{{ determineCertificateType(cert) }}</div>
+      </div>
+    </div>
+
+    <!-- Cryptographic Information -->
+    <div class="section-header">Cryptographic Information</div>
+    <div class="row small-grid">
+      <div *ngIf="cert.publicKeyAlgorithm">
+        <div class="label">Public Key Algorithm</div>
+        <div class="value">{{ cert.publicKeyAlgorithm }}</div>
+      </div>
+      <div *ngIf="cert.publicKeySize">
+        <div class="label">Key Size</div>
+        <div class="value">{{ getKeySizeDisplay() }}</div>
+      </div>
+      <div *ngIf="cert.signatureAlgorithm">
+        <div class="label">Signature Algorithm</div>
+        <div class="value">{{ cert.signatureAlgorithm }}</div>
+      </div>
+    </div>
+
+    <!-- Subject Alternative Names -->
+    <div class="row" *ngIf="cert.sanList && cert.sanList.length > 0">
+      <div class="label">Subject Alternative Names</div>
+      <div class="value">{{ formatArray(cert.sanList) }}</div>
+    </div>
+
+    <!-- Key Usages -->
+    <div class="row" *ngIf="cert.keyUsages && cert.keyUsages.length > 0">
+      <div class="label">Key Usages</div>
+      <div class="value">{{ formatArray(cert.keyUsages) }}</div>
+    </div>
+
+    <!-- Extended Key Usages -->
+    <div class="row" *ngIf="cert.extendedKeyUsages && cert.extendedKeyUsages.length > 0">
+      <div class="label">Extended Key Usages</div>
+      <div class="value">{{ formatArray(cert.extendedKeyUsages) }}</div>
+    </div>
+
+    <!-- Additional Extensions -->
+    <details *ngIf="cert.additionalExtensions && cert.additionalExtensions.length > 0" class="extensions-box">
+      <summary>Additional Extensions</summary>
+      <div class="extension-list">
+        <div class="extension-item" *ngFor="let ext of cert.additionalExtensions">
+          <div class="extension-name">{{ ext.name }}</div>
+          <div class="extension-value">{{ ext.value }}</div>
+          <div class="extension-critical" *ngIf="ext.critical">Critical</div>
+        </div>
+      </div>
+    </details>
+
+    <!-- PEM Certificate -->
     <details class="pem-box">
       <summary>📜 Prikaži PEM</summary>
       <pre>{{ toPem(cert.certificatePEM) }}</pre>
     </details>
 
+    <!-- Message -->
     <div class="message" *ngIf="cert.message">{{ cert.message }}</div>
   </section>
 </article>

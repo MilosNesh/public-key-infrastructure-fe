@@ -5,6 +5,7 @@ import { RegistrationSuccessComponent } from './auth/registration-success/regist
 import { LoginComponent } from './auth/login/login.component';
 import { RecoverComponent } from './auth/recover/recover.component';
 import { CertificateListComponent } from './certificate-list/certificate-list.component';
+import { CertificateFormComponent } from './certificate-form/certificate-form.component';
 
 export const routes: Routes = [
     {path: "registration", component: RegistrationComponent},
@@ -12,5 +13,6 @@ export const routes: Routes = [
     {path: "login", component: LoginComponent},
     {path: "recover/:token", component: RecoverComponent},
     {path: 'csr', component: CsrFormComponent},
-    {path: 'certificates', component: CertificateListComponent}
+    {path: 'certificates', component: CertificateListComponent},
+    {path: 'certificate-form', component: CertificateFormComponent}
 ];

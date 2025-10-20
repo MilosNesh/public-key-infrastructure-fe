@@ -1,0 +1,152 @@
+<div class="form-container">
+  <form [formGroup]="certForm" (ngSubmit)="submit()" class="cert-form">
+    <!-- Header -->
+    <header class="form-header">
+      <h2 class="form-title">Issue New Certificate</h2>
+    </header>
+
+    <!-- Basic Information Section -->
+    <section class="form-section">
+      <h3 class="section-title">Basic Information</h3>
+
+      <div class="form-group">
+        <label for="issuer" class="form-label">Issuer CA</label>
+        <select id="issuer" formControlName="issuerId" (change)="onIssuerChange()" class="form-select">
+          <option value="">Select an issuer...</option>
+          <option *ngFor="let issuer of issuers" [value]="issuer.id">{{issuer.name}}</option>
+        </select>
+      </div>
+
+      <!-- Policy card -->
+      <div class="policy-info" *ngIf="selectedIssuer">
+        <div class="info-item">
+          <span class="info-label">Max TTL:</span>
+          <span class="info-value">{{ selectedIssuer.maxTTL }} days</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Allow CA issuance:</span>
+          <span class="info-value">{{ selectedIssuer.allowCA ? 'Yes' : 'No' }}</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="cn" class="form-label">Common Name (CN)</label>
+        <input id="cn" type="text" formControlName="cn" class="form-input" placeholder="e.g., example.com">
+      </div>
+    </section>
+
+    <!-- SANs Section -->
+    <section class="form-section">
+      <h3 class="section-title">Subject Alternative Names</h3>
+
+      <div formArrayName="sanList" class="san-list">
+        <div *ngFor="let sanCtrl of sanList.controls; let i = index" class="san-item">
+          <input [formControlName]="i" class="form-input" placeholder="DNS, IP address, or email">
+          <button type="button" class="btn btn-outline btn-small" (click)="removeSAN(i)">Remove</button>
+        </div>
+        <button type="button" class="btn btn-secondary" (click)="addSAN()">+ Add SAN</button>
+      </div>
+    </section>
+
+    <!-- Validity Period Section -->
+    <section class="form-section">
+      <h3 class="section-title">Validity Period</h3>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input 
+            id="startDate" 
+            type="date" 
+            formControlName="startDate" 
+            class="form-input"
+            (change)="onStartDateChange()">
+        </div>
+        
+        <div class="form-group">
+          <label for="endDate" class="form-label">End Date</label>
+          <input 
+            id="endDate" 
+            type="date" 
+            formControlName="endDate" 
+            class="form-input"
+            [max]="maxEndDate"
+            (change)="onEndDateChange()">
+        </div>
+      </div>
+      
+      <!-- Show calculated duration -->
+      <div class="duration-info" *ngIf="certForm.value.startDate && certForm.value.endDate">
+        <div class="info-item">
+          <span class="info-label">Duration:</span>
+          <span class="info-value">{{ calculateDuration() }} days</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Usage Section -->
+    <section class="form-section">
+      <h3 class="section-title">Key Usage</h3>
+
+      <div formArrayName="keyUsages" class="checkbox-group">
+        <div *ngFor="let ku of keyUsageOptions; let i = index" class="checkbox-item">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [value]="ku.value"
+              (change)="onCheckboxChange($event, 'keyUsages')"
+              class="checkbox-input">
+            <span class="checkbox-text">{{ ku.label }}</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Extended Key Usage Section -->
+    <section class="form-section">
+      <h3 class="section-title">Extended Key Usage</h3>
+
+      <div formArrayName="extendedKeyUsages" class="checkbox-group">
+        <div *ngFor="let eku of extendedKeyUsageOptions" class="checkbox-item">
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              [value]="eku.value"
+              (change)="onCheckboxChange($event, 'extendedKeyUsages')"
+              class="checkbox-input">
+            <span class="checkbox-text">{{ eku.label }}</span>
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Advanced Configuration Section -->
+    <section class="form-section">
+      <h3 class="section-title">Advanced Configuration</h3>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isCA" class="checkbox-input">
+          <span class="checkbox-text">Is Certificate Authority (CA / EE)</span>
+        </label>
+      </div>
+
+      <div class="form-group">
+        <label for="additionalExtensions" class="form-label">Additional Extensions (JSON)</label>
+        <textarea id="additionalExtensions" formControlName="additionalExtensions" class="form-textarea" placeholder='{"key": "value"}'></textarea>
+      </div>
+
+      <div class="form-group">
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="saveAsTemplate" class="checkbox-input">
+          <span class="checkbox-text">Save as Template</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- Submit Section -->
+    <section class="form-section">
+      <button type="submit" class="btn btn-primary btn-large">Issue Certificate</button>
+    </section>
+  </form>
+</div>

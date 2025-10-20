@@ -20,17 +20,34 @@ ngOnChanges(changes: SimpleChanges): void {
     }
   }
 
-  private determineCertificateType(cert: CertificateResponse): string {
-    const issuerDN = cert.issuerDN || '';
-    const subjectDN = cert.subjectDN || '';
-
-    if (issuerDN === subjectDN) {
-      return 'ROOT';
-    } else if (issuerDN.includes('CA') || issuerDN.includes('Certificate Authority')) {
-      return 'INTERMEDIATE';
+  public determineCertificateType(cert: CertificateResponse): string {
+    if (cert.isCA) {
+      if (cert.issuerDN === cert.subjectDN) {
+        return 'ROOT CA';
+      } else {
+        return 'INTERMEDIATE CA';
+      }
     } else {
-      return 'END_ENTITY';
+      return 'END ENTITY';
     }
+  }
+
+  // Helper method to format arrays for display
+  formatArray(arr: string[]): string {
+    return arr && arr.length > 0 ? arr.join(', ') : 'N/A';
+  }
+
+  // Helper method to check if certificate is CA
+  isCertificateCA(): boolean {
+    return this.cert?.isCA === true;
+  }
+
+  // Helper method to get key size display
+  getKeySizeDisplay(): string {
+    if (this.cert?.publicKeySize) {
+      return `${this.cert.publicKeySize} bit`;
+    }
+    return 'EC';
   }
 
   // Wrap base64 into PEM format (64 chars per line)
@@ -102,6 +119,12 @@ ngOnChanges(changes: SimpleChanges): void {
 
   // Helper: compute days between
   daysBetween(): number {
+    // Use ttlDays if available from backend
+    if (this.cert?.ttlDays) {
+      return this.cert.ttlDays;
+    }
+
+    // Fallback to calculation if ttlDays not available
     if (!this.cert?.notBefore || !this.cert?.notAfter) return 0;
     const msPerDay = 24 * 60 * 60 * 1000;
     return Math.round((this.cert.notAfter - this.cert.notBefore) / msPerDay);
