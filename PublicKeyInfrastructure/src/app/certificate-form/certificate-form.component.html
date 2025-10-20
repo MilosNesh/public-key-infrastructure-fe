@@ -5,6 +5,11 @@
       <h2 class="form-title">Issue New Certificate</h2>
     </header>
 
+    <!-- Feedback Message -->
+    <div *ngIf="feedbackMessage" [class]="'feedback-message feedback-' + feedbackType">
+      {{ feedbackMessage }}
+    </div>
+
     <!-- Basic Information Section -->
     <section class="form-section">
       <h3 class="section-title">Basic Information</h3>
@@ -30,8 +35,64 @@
       </div>
 
       <div class="form-group">
-        <label for="cn" class="form-label">Common Name (CN)</label>
-        <input id="cn" type="text" formControlName="cn" class="form-input" placeholder="e.g., example.com">
+        <label for="cn" class="form-label">Common Name (CN) *</label>
+        <input 
+          id="cn" 
+          type="text" 
+          formControlName="cn" 
+          class="form-input" 
+          placeholder="e.g., example.com"
+          [class.error]="certForm.get('cn')?.invalid && certForm.get('cn')?.touched">
+        <div *ngIf="certForm.get('cn')?.invalid && certForm.get('cn')?.touched" class="error-message">
+          Common Name is required
+        </div>
+      </div>
+
+      <!-- Organization fields in a row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="organization" class="form-label">Organization</label>
+          <input 
+            id="organization" 
+            type="text" 
+            formControlName="organization" 
+            class="form-input" 
+            placeholder="e.g., FTN">
+        </div>
+        
+        <div class="form-group">
+          <label for="organizationalUnit" class="form-label">Organizational Unit</label>
+          <input 
+            id="organizationalUnit" 
+            type="text" 
+            formControlName="organizationalUnit" 
+            class="form-input" 
+            placeholder="e.g., IT Department">
+        </div>
+      </div>
+
+      <!-- Country and Email fields in a row -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="country" class="form-label">Country</label>
+          <input 
+            id="country" 
+            type="text" 
+            formControlName="country" 
+            class="form-input" 
+            placeholder="e.g., RS"
+            maxlength="2">
+        </div>
+        
+        <div class="form-group">
+          <label for="email" class="form-label">Email</label>
+          <input 
+            id="email" 
+            type="email" 
+            formControlName="email" 
+            class="form-input" 
+            placeholder="e.g., intermediate@ftn.ac.rs">
+        </div>
       </div>
     </section>
 
@@ -146,7 +207,10 @@
 
     <!-- Submit Section -->
     <section class="form-section">
-      <button type="submit" class="btn btn-primary btn-large">Issue Certificate</button>
+      <button type="submit" class="btn btn-primary btn-large" [disabled]="isLoading">
+        <span *ngIf="isLoading">Creating Certificate...</span>
+        <span *ngIf="!isLoading">Issue Certificate</span>
+      </button>
     </section>
   </form>
 </div>
