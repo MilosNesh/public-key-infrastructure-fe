@@ -33,3 +33,4 @@ CSR sadrži:
 - **Extensions**: SAN (Subject Alternative Name), Key Usage, itd.
 - **Signature**: Potpis CSR-a privatnim ključem korisnika
 
+

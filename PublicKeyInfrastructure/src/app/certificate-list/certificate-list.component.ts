@@ -1,0 +1,40 @@
+import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ApiService } from '../services/api-service';
+import { CertificateResponse } from '../models/certificate-response';
+import { CertificateItemComponent } from '../certificate-item/certificate-item.component';
+
+@Component({
+  selector: 'app-certificate-list',
+  imports: [CommonModule, CertificateItemComponent],
+  templateUrl: './certificate-list.component.html',
+  styleUrl: './certificate-list.component.css'
+})
+export class CertificateListComponent implements OnInit {
+  certificates: CertificateResponse[] = [];
+  loading = false;
+  error: string | null = null;
+
+  constructor(private apiService: ApiService) {}
+
+  ngOnInit(): void {
+    this.loadCertificates();
+  }
+
+  loadCertificates(): void {
+    this.loading = true;
+    this.error = null;
+
+    this.apiService.getAllRootCertificates().subscribe({
+      next: (certificates) => {
+        this.certificates = certificates;
+        this.loading = false;
+      },
+      error: (error) => {
+        console.error('Greška pri učitavanju sertifikata:', error);
+        this.error = 'Greška pri učitavanju sertifikata. Molimo pokušajte ponovo.';
+        this.loading = false;
+      }
+    });
+  }
+}

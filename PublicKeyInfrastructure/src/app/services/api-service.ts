@@ -1,7 +1,10 @@
 // src/app/services/api.service.ts
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { CsrUploadResponse } from '../models/csr-upload-response.model';
+import { CertificateResponse } from '../models/certificate-response';
+import { ExtendedRequest } from '../models/extended-request';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -19,5 +22,21 @@ export class ApiService {
 
   listIssuers() {
     return this.http.get<string[]>(`${this.backendUrl}/api/ca/issuers`);
+  }
+
+  getAllRootCertificates() {
+    return this.http.get<CertificateResponse[]>(`${this.backendUrl}/api/ca/all`);
+  }
+
+  getValidCACertificates(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.backendUrl}/api/ca/valid-ca-aliases`);
+  }
+
+  createRootCA(request: ExtendedRequest): Observable<CertificateResponse> {
+    return this.http.post<CertificateResponse>(`${this.backendUrl}/api/ca/root`, request);
+  }
+
+  getAllEndEntityCertificates(){
+    return this.http.get<CertificateResponse[]>(`${this.backendUrl}/api/ca/end-entity`);
   }
 }
