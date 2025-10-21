@@ -6,6 +6,7 @@ import { CommonModule } from '@angular/common';
 import { CryptoService } from '../services/crypto.service';
 import { UserService } from '../services/user.service';
 import { FormsModule } from '@angular/forms';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-password-manager',
@@ -25,10 +26,11 @@ export class PasswordManagerComponent {
   selectedEmail: string = ''
   showEmails: boolean = false
   selectedPassword: Password | null = null
-  constructor(private passwordSerivce: PasswordService, private router: Router, private cryptoService: CryptoService, private userService: UserService) {}
+  constructor(private passwordSerivce: PasswordService, private router: Router, private cryptoService: CryptoService, private userService: UserService, private authService: AuthService) {}
 
   ngOnInit() {
-    this.token = localStorage.getItem("pki_token") || ""
+    this.authService.redirect('ROLE_USER');
+    this.token = this.authService.getToken()
     this.passwordSerivce.getAllForUser(this.token).subscribe({
       next: (res) => {
         this.passwordList = res

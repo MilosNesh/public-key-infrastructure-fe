@@ -8,6 +8,7 @@ import { PasswordService } from '../services/password.service';
 import { Password } from '../models/password.model';
 import { Router } from '@angular/router';
 import { CryptoService } from '../services/crypto.service';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-password-form',
@@ -26,10 +27,11 @@ export class PasswordFormComponent {
   passwordForm!: FormGroup
   token: string = ""
   publicKey: string = ''
-  constructor(private fb: FormBuilder, private passwordService: PasswordService, private router: Router, private cryptoService: CryptoService) {}
+  constructor(private fb: FormBuilder, private passwordService: PasswordService, private router: Router, private cryptoService: CryptoService, private authService: AuthService) {}
 
   ngOnInit() {
-    this.token = localStorage.getItem("pki_token") || ""
+    this.authService.redirect('ROLE_USER')
+    this.token = this.authService.getToken()
     this.passwordForm = this.fb.group({
       siteName: ['', [Validators.required]],
       username: ['', [Validators.required]],

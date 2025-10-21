@@ -62,10 +62,16 @@ export class LoginComponent {
     this.recoveryMessage = ""
     this.authService.login(loginDetails).subscribe({
       next: (res) => {
-        console.log("login")
-        console.log(res)
         localStorage.setItem("pki_token", res)
-        this.router.navigate(["password-manager"])
+        this.authService.refreshRoleFromToken();
+        const role = this.authService.getRole();
+
+        if (role === 'ROLE_USER')
+          this.router.navigate(["password-manager"]);
+        else if (role === 'ROLE_CAUSER' || role === 'ROLE_ADMIN')
+          this.router.navigate(["all-certificates"]);
+        else
+        this.router.navigate(["/"]);
       },
       error: (err: HttpErrorResponse) => {
         this.errorMessage = err.error;
