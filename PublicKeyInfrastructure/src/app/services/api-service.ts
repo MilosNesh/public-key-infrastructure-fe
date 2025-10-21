@@ -55,4 +55,12 @@ export class ApiService {
   getCsrsByUserId(): Observable<CsrResponseDTO[]> {
     return this.http.get<CsrResponseDTO[]>(`${this.backendUrl}/api/csr/user`);
   }
+
+  approveCSR(csrId: number, issuerAlias: string): Observable<CertificateResponse> {
+    const params = {
+      issuerUserId: '1', // Will be read from token later
+      issuerAlias: issuerAlias
+    };
+    return this.http.post<CertificateResponse>(`${this.backendUrl}/api/csr/${csrId}/approve`, null, { params });
+  }
 }

@@ -63,9 +63,13 @@ export class CsrListComponent implements OnInit {
   getStatusLabel(status: string): string {
     const statusMap: {[key: string]: string} = {
       'PENDING': 'Na čekanju',
+      'pending': 'Na čekanju',
       'APPROVED': 'Odobren',
+      'approved': 'Odobren',
       'REJECTED': 'Odbijen',
-      'ISSUED': 'Izdat'
+      'rejected': 'Odbijen',
+      'ISSUED': 'Izdat',
+      'issued': 'Izdat'
     };
     return statusMap[status] || status;
   }
@@ -101,5 +105,37 @@ export class CsrListComponent implements OnInit {
     link.download = `csr_${csr.id}.pem`;
     link.click();
     window.URL.revokeObjectURL(url);
+  }
+
+  approveCSR(csr: CsrResponseDTO): void {
+    if (!csr.issuerAlias) {
+      this.errorMessage = 'CSR nema definisan issuer alias.';
+      return;
+    }
+
+    if (!confirm(`Da li ste sigurni da želite da odobrite CSR #${csr.id}?`)) {
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    this.apiService.approveCSR(csr.id, csr.issuerAlias).subscribe({
+      next: (response) => {
+        console.log('CSR approved successfully:', response);
+        alert(`CSR #${csr.id} uspešno odobren! Sertifikat kreiran.`);
+        // Reload the CSR list to reflect the changes
+        this.loadCsrs();
+      },
+      error: (error) => {
+        console.error('Error approving CSR:', error);
+        this.errorMessage = error.error?.message || error.message || 'Failed to approve CSR.';
+        this.isLoading = false;
+      }
+    });
+  }
+
+  isPending(csr: CsrResponseDTO): boolean {
+    return csr.status?.toLowerCase() === 'pending';
   }
 }

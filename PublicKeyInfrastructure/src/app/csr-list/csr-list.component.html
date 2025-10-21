@@ -56,6 +56,9 @@
       <div class="csr-footer">
         <button class="btn-view" (click)="viewCsr(csr)">Pregledaj PEM</button>
         <button class="btn-download" (click)="downloadCsr(csr)">Preuzmi</button>
+        <button class="btn-approve" *ngIf="isPending(csr)" (click)="approveCSR(csr)">
+          Odobri
+        </button>
       </div>
     </div>
   </div>

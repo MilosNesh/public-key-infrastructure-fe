@@ -167,10 +167,12 @@
   gap: 10px;
   padding-top: 12px;
   border-top: 1px solid rgba(15, 23, 42, 0.08);
+  flex-wrap: wrap;
 }
 
 .btn-view,
-.btn-download {
+.btn-download,
+.btn-approve {
   flex: 1;
   padding: 8px 16px;
   border: none;
@@ -179,6 +181,7 @@
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;
+  min-width: 100px;
 }
 
 .btn-view {
@@ -201,6 +204,17 @@
 .btn-download:hover {
   background: #dcfce7;
   border-color: #16a34a;
+}
+
+.btn-approve {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.btn-approve:hover {
+  background: #fde68a;
+  border-color: #f59e0b;
 }
 
 .certificate-badge {

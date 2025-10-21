@@ -8,3 +8,7 @@ openssl req -new -key user.key -out user.csr -config openssl.cnf -outform PEM
 
 //citanje End-Entity sertifikata
 openssl x509 -in ee_ee.der -inform der -text -noout
+
+
+//proveravam digitalne potpise - da li je root2 zaista izdao ee sertifikat
+openssl verify -CAfile root2.crt ee.crt
