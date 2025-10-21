@@ -43,4 +43,27 @@ export class PasswordService {
     });
     return this.http.get(`https://localhost:8084/password/load-key/`, {  headers: headers, responseType: 'text'})
   }
+
+  getPublickeyByEmail(token: string, email: string): Observable<string> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`  
+    });
+    return this.http.get(`https://localhost:8084/password/load-key/${email}`, {  headers: headers, responseType: 'text'})
+  }  
+
+  saveSharedPassword(password: Password, token: string): Observable<Password> {
+     const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<Password>(`https://localhost:8084/password/save-shared-password`, password, {headers: headers});
+  }
+
+  getAllSharedForUser(token: string): Observable<Password[]> {
+     const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<Password[]>('https://localhost:8084/password/shared-for-user', {headers: headers});
+  }
 }
