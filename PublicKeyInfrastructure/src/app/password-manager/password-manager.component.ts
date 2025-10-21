@@ -4,11 +4,14 @@ import { PasswordService } from '../services/password.service';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { CryptoService } from '../services/crypto.service';
+import { UserService } from '../services/user.service';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-password-manager',
   imports: [
     CommonModule,
+    FormsModule,
   ],
   templateUrl: './password-manager.component.html',
   styleUrl: './password-manager.component.css'
@@ -16,14 +19,29 @@ import { CryptoService } from '../services/crypto.service';
 export class PasswordManagerComponent {
   passwordList: Password[] = []
   privateKeyPem: string = ''; 
-
-  constructor(private passwordSerivce: PasswordService, private router: Router, private cryptoService: CryptoService) {}
+  token: string = ''
+  emails: string[] = []
+  sharedPasswordList: Password[] = []
+  selectedEmail: string = ''
+  showEmails: boolean = false
+  selectedPassword: Password | null = null
+  constructor(private passwordSerivce: PasswordService, private router: Router, private cryptoService: CryptoService, private userService: UserService) {}
 
   ngOnInit() {
-    var token = localStorage.getItem("pki_token") || ""
-    this.passwordSerivce.getAllForUser(token).subscribe({
+    this.token = localStorage.getItem("pki_token") || ""
+    this.passwordSerivce.getAllForUser(this.token).subscribe({
       next: (res) => {
         this.passwordList = res
+        this.passwordSerivce.getAllSharedForUser(this.token).subscribe({
+          next: (sp) => {
+            this.sharedPasswordList = sp
+            this.userService.getEmail(this.token).subscribe({
+              next: (em) => {
+                this.emails = em
+              }
+            })
+          }
+        })
       }
     })  
   }
@@ -46,8 +64,17 @@ export class PasswordManagerComponent {
           p.password = decrypted;
         })
         .catch(err => {
-          console.error(`Greška prilikom dešifrovanja za ${p.siteName}:`, err);
-          p.password = 'DECRYPTION FAILED';
+          
+        });
+    }
+
+    for (let p of this.sharedPasswordList) {
+      this.cryptoService.decryptPassword(this.privateKeyPem, p.password)
+        .then(decrypted => {
+          p.password = decrypted;
+        })
+        .catch(err => {
+          
         });
     }
   }
@@ -56,5 +83,38 @@ export class PasswordManagerComponent {
     if(password.length > 50)
       return "**********"
     return password
+  }
+
+  share() {
+    if(this.selectedEmail === '' || this.selectedPassword === null)
+      return
+    this.passwordSerivce.getPublickeyByEmail(this.token, this.selectedEmail).subscribe({
+      next: (res) => {
+        var publicKey = res;
+        if(res === "") {
+          alert("User doesn't have a public key")
+          return
+        }
+        this.cryptoService.encryptPassword(publicKey, this.selectedPassword!.password).then(crypted => {
+          this.selectedPassword!.password = crypted
+          this.selectedPassword!.username = this.selectedEmail
+          this.passwordSerivce.saveSharedPassword(this.selectedPassword!, this.token).subscribe({
+            next: (_res) => {
+              alert("Succesfully")
+              this.selectedEmail = ''
+              this.selectedPassword = null
+            }
+          })
+        })
+      },
+      error: (_) => {
+        alert("User doesn't have a public key")
+      }
+    })
+  }
+
+  showList(password: Password){
+    this.selectedPassword = password
+    this.showEmails = true
   }
 }
