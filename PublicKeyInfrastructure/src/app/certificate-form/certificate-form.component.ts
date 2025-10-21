@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule, For
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api-service';
 import { ExtendedRequest, AdditionalExtension } from '../models/extended-request';
+import { CAWithValidityDTO } from '../models/ca-with-validity.model';
 
 interface KeyUsageOption {
   label: string;
@@ -21,6 +22,8 @@ interface IssuerOption {
   allowCA: boolean;
   allowedKeyUsages: string[];
   allowedExtendedKeyUsages: string[];
+  startDate: Date; // CA's validity start date
+  endDate: Date;   // CA's validity end date
 }
 
 @Component({
@@ -87,13 +90,15 @@ export class CertificateFormComponent implements OnInit{
     this.apiService.getValidCACertificates().subscribe({
       next: (response) => {
         console.log('API Response received:', response);
-        this.issuers = response.map((alias, index) => ({
+        this.issuers = response.map((ca: CAWithValidityDTO, index) => ({
           id: index,
-          name: alias,
+          name: ca.alias,
           maxTTL: 365,
           allowCA: true,
           allowedKeyUsages: ['keyCertSign', 'cRLSign'],
-          allowedExtendedKeyUsages: []
+          allowedExtendedKeyUsages: [],
+          startDate: new Date(ca.startDate),
+          endDate: new Date(ca.endDate)
         }));
       },
       error: (error) => {
@@ -122,15 +127,26 @@ export class CertificateFormComponent implements OnInit{
     const issuer = this.issuers.find(i => i.id === issuerId);
     if (!issuer) return;
 
-    // enforce max TTL by adjusting end date if needed
-    const startDate = new Date(this.certForm.value.startDate);
-    const maxEndDate = new Date(startDate);
-    maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
+    // Automatically set start date to the later of today or CA's start date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate comparison
+    const caStartDate = new Date(issuer.startDate);
+    caStartDate.setHours(0, 0, 0, 0);
+    
+    const newStartDate = today > caStartDate ? today : caStartDate;
+    
+    // Calculate the maximum possible end date
+    const calculatedMaxEndDate = new Date(newStartDate);
+    calculatedMaxEndDate.setDate(calculatedMaxEndDate.getDate() + issuer.maxTTL);
+    
+    // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+    const effectiveMaxEndDate = calculatedMaxEndDate > issuer.endDate ? issuer.endDate : calculatedMaxEndDate;
 
-    const currentEndDate = new Date(this.certForm.value.endDate);
-    if (currentEndDate > maxEndDate) {
-      this.certForm.patchValue({ endDate: this.formatDateForInput(maxEndDate) });
-    }
+    // Set both start and end dates
+    this.certForm.patchValue({ 
+      startDate: this.formatDateForInput(newStartDate),
+      endDate: this.formatDateForInput(effectiveMaxEndDate)
+    });
 
     // optionally restrict key usages
     const filteredKU = this.certForm.value.keyUsages.filter((ku: string) =>
@@ -253,13 +269,22 @@ export class CertificateFormComponent implements OnInit{
     const issuer = this.issuers.find(i => i.id === issuerId);
 
     if (issuer) {
+      // Ensure start date is not before CA's start date
+      if (startDate < issuer.startDate) {
+        this.certForm.patchValue({ startDate: this.formatDateForInput(issuer.startDate) });
+        return;
+      }
+
       // If issuer has max TTL constraint, adjust end date
       const maxEndDate = new Date(startDate);
       maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
 
+      // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+      const effectiveMaxEndDate = maxEndDate > issuer.endDate ? issuer.endDate : maxEndDate;
+
       const currentEndDate = new Date(this.certForm.value.endDate);
-      if (currentEndDate < startDate || currentEndDate > maxEndDate) {
-        this.certForm.patchValue({ endDate: this.formatDateForInput(maxEndDate) });
+      if (currentEndDate < startDate || currentEndDate > effectiveMaxEndDate) {
+        this.certForm.patchValue({ endDate: this.formatDateForInput(effectiveMaxEndDate) });
       }
     }
   }
@@ -274,8 +299,18 @@ export class CertificateFormComponent implements OnInit{
       const maxEndDate = new Date(startDate);
       maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
 
-      if (endDate > maxEndDate) {
-        this.certForm.patchValue({ endDate: this.formatDateForInput(maxEndDate) });
+      // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+      const effectiveMaxEndDate = maxEndDate > issuer.endDate ? issuer.endDate : maxEndDate;
+
+      if (endDate > effectiveMaxEndDate) {
+        this.certForm.patchValue({ endDate: this.formatDateForInput(effectiveMaxEndDate) });
+        return;
+      }
+
+      // Ensure end date is not after CA's end date
+      if (endDate > issuer.endDate) {
+        this.certForm.patchValue({ endDate: this.formatDateForInput(issuer.endDate) });
+        return;
       }
     }
 
@@ -294,9 +329,20 @@ export class CertificateFormComponent implements OnInit{
     if (issuer) {
       const maxEndDate = new Date(startDate);
       maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
-      return this.formatDateForInput(maxEndDate);
+      
+      // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+      const effectiveMaxEndDate = maxEndDate > issuer.endDate ? issuer.endDate : maxEndDate;
+      return this.formatDateForInput(effectiveMaxEndDate);
     }
 
+    return '';
+  }
+
+  get minStartDate(): string {
+    const issuer = this.selectedIssuer;
+    if (issuer) {
+      return this.formatDateForInput(issuer.startDate);
+    }
     return '';
   }
 
