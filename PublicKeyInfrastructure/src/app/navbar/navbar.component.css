@@ -1,0 +1,44 @@
+.body {
+    font-family: 'Roboto', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #1a1a1a;
+    color: #fff;
+}
+nav {
+    background-color: #333;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+nav a {
+    text-decoration: none;
+    color: #fff;
+    padding: 10px 20px;
+    margin: 0 10px;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+}
+nav a:hover {
+    background-color: #fff;
+}
+.logo {
+    font-weight: 500;
+    font-size: 20px;
+}
+.menu {
+    display: flex;
+    align-items: center;
+}
+.menu-item {
+    padding: 10px 15px;
+    margin-right: 20px;
+}
+.menu-item a {
+    color: #fff;
+    font-weight: 500;
+}
+.menu-item a:hover {
+    color: #007bff;
+}
