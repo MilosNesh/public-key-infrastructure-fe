@@ -8,6 +8,7 @@ import { AuthService } from '../auth.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import zxcvbn from 'zxcvbn';
 import { RecoveryData } from '../../models/recovery-data.model';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-recover',
@@ -27,6 +28,7 @@ export class RecoverComponent {
   passwordStrength: number = 0;
   passwordFeedback: string = '';
   token: string = '';
+  errorMessage: string = '';
   constructor(private fb: FormBuilder, private authService: AuthService, private router: Router, private route: ActivatedRoute) { }
 
   ngOnInit() {
@@ -76,10 +78,15 @@ export class RecoverComponent {
         email: this.recoveryForm.value.email,
         password: this.recoveryForm.value.password,
       }
-      
+      if(this.token === ' ')
+        this.token = this.authService.getToken()
       this.authService.recover(recoveryData, this.token).subscribe({
         next: (res) => {
+          this.authService.logout()
           this.router.navigate(["login"]);
+        },
+         error: (err: HttpErrorResponse) => {
+          this.errorMessage = err.error;
         }
       }) 
     }

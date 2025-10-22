@@ -38,6 +38,14 @@ export class AuthService {
     return this.http.post("https://localhost:8084/auth/recoverylink", email,  {  responseType: 'text'})
   }
 
+  public registerCaUser(user: User, token: string): Observable<User> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<User>("https://localhost:8084/users/register-ca", user, {headers: headers});
+  }
+
   public getToken(): string {
     return localStorage.getItem("pki_token") || ''
   }
@@ -65,21 +73,35 @@ export class AuthService {
 
   public isTokenExpired(): boolean {
     const token = this.getToken();
-    if (!token) return true; 
+    if (!token){
+      localStorage.removeItem('pki_token');
+      this.roleSubject.next('');
+      return true; 
+    }
 
     try {
       const decoded: any = jwtDecode(token);
       if (!decoded || !decoded.exp) return true;
 
       const now = Math.floor(Date.now() / 1000);
+      
+      if (decoded.exp < now){
+        localStorage.removeItem('pki_token');
+        this.roleSubject.next('');
+        return true; 
+      }
       return decoded.exp < now;
     } catch (e) {
+      localStorage.removeItem('pki_token');
+      this.roleSubject.next('');
       return true; 
     }
   }
 
   public redirect(role: string) {
     if(this.isTokenExpired())
+      this.router.navigate(["login"])
+    if(this.getRole() === '')
       this.router.navigate(["login"])
     if(this.getRole() !== role)
         this.router.navigate(["login"])
