@@ -12,6 +12,7 @@ import { AllCertificatesComponent } from './all-certificates/all-certificates.co
 import { CsrListComponent } from './csr-list/csr-list.component';
 import { TemplateFormComponent } from './template-form/template-form.component';
 import { RegistrationCaUserComponent } from './auth/registration-ca-user/registration-ca-user.component';
+import { SessionsComponent } from './auth/session/session.component';
 
 export const routes: Routes = [
     {path: "", component: HomeSrceenComponent},
@@ -26,5 +27,6 @@ export const routes: Routes = [
     {path: 'all-certificates', component: AllCertificatesComponent},
     {path: 'csr-list', component: CsrListComponent},
     {path: 'template-form', component: TemplateFormComponent},
-    {path: 'register-ca-user', component: RegistrationCaUserComponent}
+    {path: 'register-ca-user', component: RegistrationCaUserComponent},
+    {path: 'sessions', component: SessionsComponent }
 ];

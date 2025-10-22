@@ -7,6 +7,7 @@ import { RecoveryData } from '../models/recovery-data.model';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
 import { LoginResponse } from '../models/login-response.model';
+import { Session } from '../models/session.model';
 
 @Injectable({
   providedIn: 'root'
@@ -45,6 +46,30 @@ export class AuthService {
       'Content-Type': 'application/json'
     });
     return this.http.post<User>("https://localhost:8084/users/register-ca", user, {headers: headers});
+  }
+
+  public list(token: string): Observable<Session[]> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<Session[]>('https://localhost:8084/api/sessions', { headers: headers });
+  }
+
+  public revoke(sid: string, token: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.delete<void>(`https://localhost:8084/api/sessions/${sid}`, { headers: headers});
+  }
+
+  public revokeAllExceptCurrent(token: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<void>(`https://localhost:8084/api/sessions/revoke-all-except-current`, {}, { headers: headers });
   }
 
   public getToken(): string {
@@ -145,11 +170,17 @@ export class AuthService {
     }
   }
 
+  public getSidFromToken(): string | null {
+    const decoded = this.getDecodedToken();
+    return decoded?.sid ?? null;
+  }
+
 
 }
 
 interface JwtPayload {
   sub: string;            
   role?: string;
-  exp?: number;           
+  exp?: number;   
+  sid?: string;        
 }
