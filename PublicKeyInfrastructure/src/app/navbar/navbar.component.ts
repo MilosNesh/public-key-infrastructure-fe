@@ -15,10 +15,11 @@ export class NavbarComponent {
   ngOnInit(){
     this.authService.role$.subscribe((r) => {
           this.role = r;
+          console.log("ROLEEEE: ", this.role);
         });
     }
 
   logout() {
     this.authService.logout();
-  }  
+  }
 }

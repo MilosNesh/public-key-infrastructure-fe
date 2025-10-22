@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule, FormsModule, FormControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api-service';
+import { AuthService } from '../auth/auth.service';
 import { ExtendedRequest, AdditionalExtension } from '../models/extended-request';
 import { CAWithValidityDTO } from '../models/ca-with-validity.model';
 import { TemplateDropdownDTO } from '../models/template-dropdown.model';
@@ -46,6 +47,8 @@ export class CertificateFormComponent implements OnInit{
   feedbackMessage: string = '';
   feedbackType: 'success' | 'error' | 'info' = 'info';
   isLoading: boolean = false;
+  role: string = '';
+  isFormDisabled: boolean = false;
   keyUsageOptions: KeyUsageOption[] = [
     { label: 'Digital Signature', value: 'digitalSignature' },
     { label: 'Non Repudiation', value: 'nonRepudiation' },
@@ -67,7 +70,11 @@ export class CertificateFormComponent implements OnInit{
     { label: 'Smartcard Logon', value: 'smartcardLogon' }
   ];
 
-  constructor(private fb: FormBuilder, private apiService: ApiService) { }
+  constructor(
+    private fb: FormBuilder, 
+    private apiService: ApiService,
+    private authService: AuthService
+  ) { }
 
   ngOnInit(): void {
     // Set default dates
@@ -100,6 +107,12 @@ export class CertificateFormComponent implements OnInit{
     this.addSAN();
     this.loadIssuers();
     this.loadTemplates();
+    
+    // Subscribe to role changes
+    this.authService.role$.subscribe((role) => {
+      this.role = role;
+      this.checkFormDisability();
+    });
   }
 
   loadIssuers() {
@@ -116,6 +129,7 @@ export class CertificateFormComponent implements OnInit{
           startDate: new Date(ca.startDate),
           endDate: new Date(ca.endDate)
         }));
+        this.checkFormDisability();
       },
       error: (error) => {
         console.log('API Error occurred:', error);
@@ -124,6 +138,18 @@ export class CertificateFormComponent implements OnInit{
         console.error('Error loading issuers:', error);
       }
     });
+  }
+
+  checkFormDisability() {
+    // Disable form if user is ROLE_CAUSER and has no issuers
+    if (this.role === 'ROLE_CAUSER' && this.issuers.length === 0) {
+      this.isFormDisabled = true;
+      this.certForm.disable();
+      this.showFeedback('Nema dostupnih CA sertifikata za kreiranje. Kontaktirajte administratora.', 'error');
+    } else {
+      this.isFormDisabled = false;
+      this.certForm.enable();
+    }
   }
 
   loadTemplates() {

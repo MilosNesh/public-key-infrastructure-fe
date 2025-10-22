@@ -140,7 +140,7 @@
 }
 
 /* Policy info - matches certificate-item info styling */
-.policy-info, .duration-info, .template-info, .template-issuer-info {
+.policy-info, .duration-info {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 10px;
@@ -156,15 +156,6 @@
   align-items: center;
 }
 
-.template-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #e2e8f0;
-}
-
 .info-label {
   color: #64748b;
   font-size: 0.82rem;
@@ -177,25 +168,16 @@
   font-size: 0.9rem;
 }
 
-/* Validation message styling */
-.validation-message {
-  margin-top: 6px;
-  font-size: 0.8rem;
-  font-weight: 500;
-  padding: 4px 8px;
-  border-radius: 4px;
-}
-
-.validation-message.valid {
-  color: #059669;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-}
-
-.validation-message.invalid {
-  color: #dc2626;
+/* Disabled message styling */
+.disabled-message {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
   background: #fef2f2;
   border: 1px solid #fca5a5;
+  border-radius: 0.5rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
 /* SAN list styling */

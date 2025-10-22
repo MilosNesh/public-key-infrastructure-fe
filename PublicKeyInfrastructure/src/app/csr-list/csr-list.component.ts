@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api-service';
 import { CsrResponseDTO } from '../models/csr-response.model';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-csr-list',
@@ -15,10 +16,15 @@ export class CsrListComponent implements OnInit {
   errorMessage: string = '';
   selectedCsr: CsrResponseDTO | null = null;
   showPemModal: boolean = false;
+  role: string = '';
 
-  constructor(private apiService: ApiService) {}
+  constructor(private apiService: ApiService, private authService: AuthService) {}
 
   ngOnInit(): void {
+    this.authService.role$.subscribe((r) => {
+      this.role = r;
+    });
+
     this.loadCsrs();
   }
 
