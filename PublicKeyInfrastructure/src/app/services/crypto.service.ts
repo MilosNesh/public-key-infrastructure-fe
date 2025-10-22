@@ -7,7 +7,6 @@ export class CryptoService {
 
   constructor() { }
 
-  // Removes PEM headers/footers and decodes Base64
   pemToArrayBuffer(pem: string): ArrayBuffer {
     // .replace(/-----BEGIN PUBLIC KEY-----/, '')
     //   .replace(/-----END PUBLIC KEY-----/, '')
@@ -91,8 +90,6 @@ export class CryptoService {
     return new TextDecoder().decode(decrypted);
   }
 
-
-  ////novoo
 
   private ab2b64(buf: ArrayBuffer): string {
     const bytes = new Uint8Array(buf);
