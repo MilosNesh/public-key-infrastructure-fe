@@ -46,7 +46,7 @@ export class PasswordFormComponent {
   }
 
   onSubmit(): void {
-    if(this.passwordForm.invalid)
+    if(this.passwordForm.invalid || this.publicKey === '')
       return;
 
     var password: Password = {

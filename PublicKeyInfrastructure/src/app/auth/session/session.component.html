@@ -1,0 +1,36 @@
+<div class="sessions-card" *ngIf="!loading; else loadingTpl">
+  <div class="header">
+    <div>
+      <h2>Where you're logged in</h2>
+      <p class="muted">Devices and browsers currently signed in to your account.</p>
+    </div>
+    <button class="btn-outline" (click)="revokeOthers()">Log out of other sessions</button>
+  </div>
+
+  <div *ngIf="error" class="error">{{ error }}</div>
+
+  <ul class="session-list">
+    <li *ngFor="let s of sessions" [class.current]="isCurrent(s)">
+      <div class="icon">🖥️</div>
+      <div class="meta">
+        <div class="title">
+          <span>{{ labelFor(s) }}</span>
+          <span class="badge" *ngIf="isCurrent(s)">This session</span>
+          <span class="badge muted" *ngIf="s.revoked">Revoked</span>
+        </div>
+        <div class="sub">
+          <span>{{ s.ip }}</span>
+          <span>•</span>
+          <span>Last activity {{ s.lastActivityAt | date:'medium' }}</span>
+        </div>
+      </div>
+      <div class="actions">
+        <button class="btn" (click)="revokeOne(s)" [disabled]="s.revoked">Log out</button>
+      </div>
+    </li>
+  </ul>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="loading">Loading sessions…</div>
+</ng-template>

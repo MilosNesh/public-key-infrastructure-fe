@@ -1,0 +1,23 @@
+/* src/app/pages/sessions/sessions.component.scss */
+.sessions-card {
+  background: #fff; border: 1px solid #eee; border-radius: 14px; padding: 16px 18px; max-width: 840px;
+}
+.header { display: flex; align-items: center; justify-content: space-between; }
+.header h2 { margin: 0 0 4px; font-size: 18px; }
+.header .muted { color: #666; margin: 0; }
+.session-list { list-style: none; padding: 0; margin: 16px 0 0; }
+.session-list li {
+  display: grid; grid-template-columns: 40px 1fr auto; align-items: center; gap: 12px;
+  padding: 12px 8px; border-top: 1px solid #f0f0f0;
+}
+.session-list li.current { background: #fafcff; }
+.icon { font-size: 20px; text-align: center; }
+.title { font-weight: 600; display: flex; gap: 8px; align-items: center; }
+.badge { font-weight: 500; font-size: 12px; padding: 2px 8px; border-radius: 999px; background: #e7f1ff; color: #1f6fff; }
+.badge.muted { background: #f1f1f1; color: #555; }
+.sub { color: #666; font-size: 13px; display: flex; gap: 6px; }
+.actions .btn { padding: 6px 12px; border: 1px solid #ddd; border-radius: 8px; background: #fff; cursor: pointer; }
+.actions .btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn-outline { background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 8px 12px; cursor: pointer; }
+.loading { padding: 24px; color: #666; }
+.error { background: #ffecec; border: 1px solid #ffbdbd; color: #a40000; padding: 8px 12px; border-radius: 8px; margin-top: 12px; }

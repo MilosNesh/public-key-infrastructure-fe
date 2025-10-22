@@ -66,7 +66,7 @@ export class PasswordManagerComponent {
           p.password = decrypted;
         })
         .catch(err => {
-          
+          this.ngOnInit()
         });
     }
 
@@ -76,7 +76,6 @@ export class PasswordManagerComponent {
           p.password = decrypted;
         })
         .catch(err => {
-          
         });
     }
   }

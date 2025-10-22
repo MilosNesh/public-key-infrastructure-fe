@@ -5,12 +5,14 @@
         </a>
 
         <div class="menu">
+
             <!-- User Menu -->
             <div *ngIf="role === 'ROLE_USER'" class="menu">
                 <div class="menu-item"><a routerLink="password-manager">Password Manager</a></div>
                 <div class="menu-item"><a routerLink="csr">Upload CSR</a></div>
                 <div class="menu-item"><a routerLink="user-ee">End entities</a></div>
                 <div class="menu-item"><a routerLink="csr-list">My CSRs</a></div>
+                <div class="menu-item"><a routerLink="sessions">Sessions</a></div>
             </div>
 
             <!-- Admin Menu -->
@@ -19,6 +21,7 @@
                 <div class="menu-item"><a routerLink="certificate-form">Create Certificate</a></div>
                 <div class="menu-item"><a routerLink="template-form">Create Template</a></div>
                 <div class="menu-item"><a routerLink="csr-all">Manage CSRs</a></div>
+                <div class="menu-item"><a routerLink="register-ca-user">Register CA User</a></div>
             </div>
 
             <!-- CAUser Menu-->

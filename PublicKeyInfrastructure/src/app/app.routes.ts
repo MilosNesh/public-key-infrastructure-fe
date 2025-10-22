@@ -14,6 +14,8 @@ import { TemplateFormComponent } from './template-form/template-form.component';
 import { UserEndEntitiesComponent } from './user-end-entities/user-end-entities.component';
 import { CsrAllComponent } from './csr-all/csr-all.component';
 import { CertificateListComponent } from './certificate-list/certificate-list.component';
+import { RegistrationCaUserComponent } from './auth/registration-ca-user/registration-ca-user.component';
+import { SessionsComponent } from './auth/session/session.component';
 
 export const routes: Routes = [
     {path: "", component: HomeSrceenComponent},
@@ -30,5 +32,7 @@ export const routes: Routes = [
     {path: 'template-form', component: TemplateFormComponent},
     {path: 'user-ee', component: UserEndEntitiesComponent},
     {path: 'csr-all', component: CsrAllComponent},
-    {path: 'certificate-list', component: CertificateListComponent}
+    {path: 'certificate-list', component: CertificateListComponent},
+    {path: 'register-ca-user', component: RegistrationCaUserComponent},
+    {path: 'sessions', component: SessionsComponent }
 ];

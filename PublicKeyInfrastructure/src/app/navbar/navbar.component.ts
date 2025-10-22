@@ -17,6 +17,7 @@ export class NavbarComponent {
           this.role = r;
           console.log("ROLEEEE: ", this.role);
         });
+    this.authService.isTokenExpired()
     }
 
   logout() {

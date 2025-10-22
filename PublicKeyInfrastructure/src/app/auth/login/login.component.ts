@@ -10,6 +10,7 @@ import { LoginDetails } from '../../models/login-details.model';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RecaptchaModule, RecaptchaFormsModule } from 'ng-recaptcha';
 import { environment } from '../../../environments/environment';
+import { LoginResponse } from '../../models/login-response.model';
 
 @Component({
   selector: 'app-login',
@@ -61,22 +62,31 @@ export class LoginComponent {
     }
     this.recoveryMessage = ""
     this.authService.login(loginDetails).subscribe({
-      next: (res) => {
-        localStorage.setItem("pki_token", res)
-        this.authService.refreshRoleFromToken();
-        const role = this.authService.getRole();
+    next: (res: LoginResponse) => {
+      localStorage.setItem("pki_token", res.token);
 
-        if (role === 'ROLE_USER')
-          this.router.navigate(["password-manager"]);
-        else if (role === 'ROLE_CAUSER' || role === 'ROLE_ADMIN')
-          this.router.navigate(["all-certificates"]);
-        else
-        this.router.navigate(["/"]);
-      },
-      error: (err: HttpErrorResponse) => {
-        this.errorMessage = err.error;
+      if (res.mustChangePassword) {
+        localStorage.setItem("mustChangePassword", String(res.mustChangePassword));
+        this.router.navigate(["recover/ "]);
+        return;
       }
-    })
+      
+      this.authService.refreshRoleFromToken();
+
+      const role = this.authService.getRole();
+
+      if (role === 'ROLE_USER') {
+        this.router.navigate(["password-manager"]);
+      } else if (role === 'ROLE_CAUSER' || role === 'ROLE_ADMIN') {
+        this.router.navigate(["all-certificates"]);
+      } else {
+        this.router.navigate(["/"]);
+      }
+    },
+    error: (err: HttpErrorResponse) => {
+      this.errorMessage = err.error?.message || "Greška prilikom prijave.";
+    }
+  });
     
   }
 

@@ -42,7 +42,8 @@
         Passwords mismatch
       </mat-error>
     </mat-form-field>
-
+    
+    <p>{{errorMessage}}</p>
     <button mat-raised-button color="primary" type="submit" [disabled]="recoveryForm.invalid">Reset</button>
   </form>
 </div>

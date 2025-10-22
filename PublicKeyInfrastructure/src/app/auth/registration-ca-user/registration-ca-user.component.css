@@ -1,4 +1,4 @@
-.recovery-container {
+.registration-container {
   max-width: 400px;
   margin: 0 auto;
   padding: 20px;
@@ -55,15 +55,10 @@ button {
   background-color: green;
 }
 .container {
-  height: 100vh;
+  height: 130vh;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   background: url('https://png.pngtree.com/background/20211217/original/pngtree-abstract-background-of-matrix-digital-space-picture-image_1593623.jpg') no-repeat center center/cover;
-}
-
-p {
-  color: red;
-  text-align: center;
 }

@@ -6,6 +6,8 @@ import { LoginDetails } from '../models/login-details.model';
 import { RecoveryData } from '../models/recovery-data.model';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
+import { LoginResponse } from '../models/login-response.model';
+import { Session } from '../models/session.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +24,8 @@ export class AuthService {
     return this.http.post<User>("https://localhost:8084/auth/register", user);
   }
 
-  public login(loginDetails: LoginDetails) : Observable<string> {
-    return this.http.post("https://localhost:8084/auth/login", loginDetails, { responseType: 'text'})
+  public login(loginDetails: LoginDetails) : Observable<LoginResponse> {
+    return this.http.post<LoginResponse>("https://localhost:8084/auth/login", loginDetails)
   }
 
   public recover(recoveryData: RecoveryData, token: string): Observable<string> {
@@ -36,6 +38,38 @@ export class AuthService {
 
   public sendLink(email: string): Observable<string> {
     return this.http.post("https://localhost:8084/auth/recoverylink", email,  {  responseType: 'text'})
+  }
+
+  public registerCaUser(user: User, token: string): Observable<User> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<User>("https://localhost:8084/users/register-ca", user, {headers: headers});
+  }
+
+  public list(token: string): Observable<Session[]> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.get<Session[]>('https://localhost:8084/api/sessions', { headers: headers });
+  }
+
+  public revoke(sid: string, token: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.delete<void>(`https://localhost:8084/api/sessions/${sid}`, { headers: headers});
+  }
+
+  public revokeAllExceptCurrent(token: string): Observable<void> {
+    const headers = new HttpHeaders({
+      'Authorization': `Bearer ${token}`,  
+      'Content-Type': 'application/json'
+    });
+    return this.http.post<void>(`https://localhost:8084/api/sessions/revoke-all-except-current`, {}, { headers: headers });
   }
 
   public getToken(): string {
@@ -65,21 +99,35 @@ export class AuthService {
 
   public isTokenExpired(): boolean {
     const token = this.getToken();
-    if (!token) return true; 
+    if (!token){
+      localStorage.removeItem('pki_token');
+      this.roleSubject.next('');
+      return true; 
+    }
 
     try {
       const decoded: any = jwtDecode(token);
       if (!decoded || !decoded.exp) return true;
 
       const now = Math.floor(Date.now() / 1000);
+      
+      if (decoded.exp < now){
+        localStorage.removeItem('pki_token');
+        this.roleSubject.next('');
+        return true; 
+      }
       return decoded.exp < now;
     } catch (e) {
+      localStorage.removeItem('pki_token');
+      this.roleSubject.next('');
       return true; 
     }
   }
 
   public redirect(role: string) {
     if(this.isTokenExpired())
+      this.router.navigate(["login"])
+    if(this.getRole() === '')
       this.router.navigate(["login"])
     if(this.getRole() !== role)
         this.router.navigate(["login"])
@@ -122,11 +170,17 @@ export class AuthService {
     }
   }
 
+  public getSidFromToken(): string | null {
+    const decoded = this.getDecodedToken();
+    return decoded?.sid ?? null;
+  }
+
 
 }
 
 interface JwtPayload {
   sub: string;            
   role?: string;
-  exp?: number;           
+  exp?: number;   
+  sid?: string;        
 }
