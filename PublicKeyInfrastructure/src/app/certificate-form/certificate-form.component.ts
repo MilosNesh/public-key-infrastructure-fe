@@ -49,6 +49,7 @@ export class CertificateFormComponent implements OnInit{
   isLoading: boolean = false;
   role: string = '';
   isFormDisabled: boolean = false;
+  organizationDisabled: boolean = false;
   keyUsageOptions: KeyUsageOption[] = [
     { label: 'Digital Signature', value: 'digitalSignature' },
     { label: 'Non Repudiation', value: 'nonRepudiation' },
@@ -110,8 +111,10 @@ export class CertificateFormComponent implements OnInit{
     
     // Subscribe to role changes
     this.authService.role$.subscribe((role) => {
+      console.log('Role subscription triggered, new role:', role);
       this.role = role;
       this.checkFormDisability();
+      this.loadOrganizationIfCAUSER();
     });
   }
 
@@ -150,6 +153,34 @@ export class CertificateFormComponent implements OnInit{
       this.isFormDisabled = false;
       this.certForm.enable();
     }
+  }
+
+  loadOrganizationIfCAUSER() {
+    console.log('loadOrganizationIfCAUSER called, role:', this.role);
+    
+    if (this.role === 'ROLE_CAUSER') {
+      console.log('User is ROLE_CAUSER, loading organization...');
+      this.organizationDisabled = true;
+      
+      this.apiService.getOrganization().subscribe({
+        next: (response) => {
+          console.log('Organization loaded successfully:', response);
+          console.log('Organization value:', response.organization);
+          console.log('Setting organizationDisabled to:', this.organizationDisabled);
+          this.certForm.patchValue({ organization: response.organization });
+          console.log('Form organization value after patch:', this.certForm.get('organization')?.value);
+        },
+        error: (error) => {
+          console.error('Error loading organization:', error);
+          this.showFeedback('Greška pri učitavanju organizacije', 'error');
+        }
+      });
+    } else {
+      console.log('User is not ROLE_CAUSER, role is:', this.role);
+      this.organizationDisabled = false;
+    }
+    
+    console.log('Final organizationDisabled value:', this.organizationDisabled);
   }
 
   loadTemplates() {

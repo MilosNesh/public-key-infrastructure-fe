@@ -71,9 +71,9 @@ export class ApiService {
     const params = {
       issuerAlias: issuerAlias
     };
-    return this.http.post<CertificateResponse>(`${this.backendUrl}/api/csr/${csrId}/approve`, null, { 
-      ...this.getAuthHeaders(), 
-      params 
+    return this.http.post<CertificateResponse>(`${this.backendUrl}/api/csr/${csrId}/approve`, null, {
+      ...this.getAuthHeaders(),
+      params
     });
   }
 
@@ -87,5 +87,11 @@ export class ApiService {
 
   getTemplateById(id: number): Observable<CertificateTemplateResponseDTO> {
     return this.http.get<CertificateTemplateResponseDTO>(`${this.backendUrl}/api/templates/${id}`, this.getAuthHeaders());
+  }
+
+  getOrganization(): Observable<{organization: string}> {
+    console.log('API: getOrganization called');
+    console.log('API: Auth headers:', this.getAuthHeaders());
+    return this.http.get<{organization: string}>(`${this.backendUrl}/users/organization`, this.getAuthHeaders());
   }
 }

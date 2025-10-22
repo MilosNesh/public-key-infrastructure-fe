@@ -8,7 +8,7 @@
     <!-- Template Selection Section -->
     <section class="form-section">
       <h3 class="section-title">Template Selection (Optional)</h3>
-      
+
       <div class="form-group">
         <label for="template" class="form-label">Certificate Template</label>
         <select id="template" formControlName="templateId" (change)="onTemplateChange()" class="form-select">
@@ -51,10 +51,10 @@
       <!-- Issuer dropdown - only show if no template is selected -->
       <div class="form-group" *ngIf="!selectedTemplate">
         <label for="issuer" class="form-label">Issuer CA *</label>
-        <select 
-          id="issuer" 
-          formControlName="issuerId" 
-          (change)="onIssuerChange()" 
+        <select
+          id="issuer"
+          formControlName="issuerId"
+          (change)="onIssuerChange()"
           class="form-select"
           [disabled]="isFormDisabled">
           <option value="">Select an issuer...</option>
@@ -102,8 +102,8 @@
         <div *ngIf="certForm.get('cn')?.invalid && certForm.get('cn')?.touched" class="error-message">
           Common Name is required
         </div>
-        <div *ngIf="cnValidationMessage" 
-             class="validation-message" 
+        <div *ngIf="cnValidationMessage"
+             class="validation-message"
              [ngClass]="{'valid': cnValidationMessage.includes('✓'), 'invalid': cnValidationMessage.includes('✗')}">
           {{ cnValidationMessage }}
         </div>
@@ -118,7 +118,8 @@
             type="text"
             formControlName="organization"
             class="form-input"
-            placeholder="e.g., FTN">
+            placeholder="e.g., FTN"
+            [disabled]="organizationDisabled">
         </div>
 
         <div class="form-group">
@@ -163,17 +164,17 @@
 
       <div formArrayName="sanList" class="san-list">
         <div *ngFor="let sanCtrl of sanList.controls; let i = index" class="san-item">
-          <input [formControlName]="i" 
+          <input [formControlName]="i"
                  (input)="onSANChange()"
-                 class="form-input" 
+                 class="form-input"
                  placeholder="DNS, IP address, or email">
           <button type="button" class="btn btn-outline btn-small" (click)="removeSAN(i)">Remove</button>
         </div>
         <button type="button" class="btn btn-secondary" (click)="addSAN()">+ Add SAN</button>
       </div>
-      
-      <div *ngIf="sanValidationMessage" 
-           class="validation-message" 
+
+      <div *ngIf="sanValidationMessage"
+           class="validation-message"
            [ngClass]="{'valid': sanValidationMessage.includes('✓'), 'invalid': sanValidationMessage.includes('✗')}">
         {{ sanValidationMessage }}
       </div>
@@ -280,9 +281,9 @@
 
     <!-- Submit Section -->
     <section class="form-section">
-      <button 
-        type="submit" 
-        class="btn btn-primary btn-large" 
+      <button
+        type="submit"
+        class="btn btn-primary btn-large"
         [disabled]="isLoading || isFormDisabled">
         <span *ngIf="isLoading">Creating Certificate...</span>
         <span *ngIf="!isLoading && !isFormDisabled">Issue Certificate</span>
