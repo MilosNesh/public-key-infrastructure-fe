@@ -4,12 +4,17 @@
             Public Key Infrastructure
         </div>
         <div *ngIf="role === 'ROLE_USER'" class="menu">
-            <div class="menu-item"><a routerLink="csr">CSR</a></div>
+            <div class="menu-item"><a routerLink="csr-list">My CSRs</a></div>
+            <div class="menu-item"><a routerLink="csr">New CSR</a></div>
             <div class="menu-item"><a routerLink="password-manager">Password manager</a></div>
         </div>
         <div *ngIf="role === 'ROLE_ADMIN'" class="menu">
             <div class="menu-item"><a routerLink="all-certificates">All certificates</a></div>
             <div class="menu-item"><a routerLink="certificate-form">Create certificates</a></div>
+            <div class="menu-item"><a routerLink="register-ca-user">Register CA User</a></div>
+        </div>
+          <div *ngIf="role === 'ROLE_CAUSER'" class="menu">
+            <!-- <div class="menu-item"><a routerLink="recover/ ">Change password</a></div> -->
         </div>
         <div *ngIf="role !== ''" class="menu-item"><a (click)="logout()">Sign out</a></div>
         <div *ngIf="role === ''" class="menu-item"><a routerLink="login">Sign in</a></div>

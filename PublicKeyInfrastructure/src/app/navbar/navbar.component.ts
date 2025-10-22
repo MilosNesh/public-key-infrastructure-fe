@@ -16,6 +16,7 @@ export class NavbarComponent {
     this.authService.role$.subscribe((r) => {
           this.role = r;
         });
+    this.authService.isTokenExpired()
     }
 
   logout() {

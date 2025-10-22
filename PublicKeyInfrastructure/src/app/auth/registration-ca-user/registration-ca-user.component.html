@@ -1,0 +1,41 @@
+<div class="container">
+<div class="registration-container">
+  <h2>Registrer CA User</h2>
+  <form [formGroup]="registrationForm" (ngSubmit)="onSubmit()">
+    
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Name</mat-label>
+      <input matInput formControlName="name" required>
+      <mat-error *ngIf="registrationForm.controls['name'].invalid && registrationForm.controls['name'].touched">
+        Enter your name
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Surname</mat-label>
+      <input matInput formControlName="surname" required>
+      <mat-error *ngIf="registrationForm.controls['surname'].invalid && registrationForm.controls['surname'].touched">
+        Enter your surname
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Email address</mat-label>
+      <input matInput formControlName="email" type="email" required>
+      <mat-error *ngIf="registrationForm.controls['email'].invalid && registrationForm.controls['email'].touched">
+        Enter a valid email address
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill" class="full-width">
+      <mat-label>Organization</mat-label>
+      <input matInput formControlName="organization" required>
+      <mat-error *ngIf="registrationForm.controls['organization'].invalid && registrationForm.controls['organization'].touched">
+        Enter organization name
+      </mat-error>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="submit" [disabled]="registrationForm.invalid">Register</button>
+  </form>
+</div>
+</div>
