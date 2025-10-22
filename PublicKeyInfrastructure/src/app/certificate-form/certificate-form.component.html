@@ -284,10 +284,11 @@
       <button
         type="submit"
         class="btn btn-primary btn-large"
-        [disabled]="isLoading || isFormDisabled">
+        [disabled]="isSubmitDisabled">
         <span *ngIf="isLoading">Creating Certificate...</span>
-        <span *ngIf="!isLoading && !isFormDisabled">Issue Certificate</span>
-        <span *ngIf="!isLoading && isFormDisabled">Form Disabled</span>
+        <span *ngIf="!isLoading && !isSubmitDisabled">Issue Certificate</span>
+        <span *ngIf="!isLoading && isSubmitDisabled && role !== 'ROLE_ADMIN'">Form Disabled</span>
+        <span *ngIf="!isLoading && isSubmitDisabled && role === 'ROLE_ADMIN'">Issue Certificate</span>
       </button>
     </section>
   </form>

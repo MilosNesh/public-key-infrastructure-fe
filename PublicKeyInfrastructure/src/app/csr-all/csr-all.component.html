@@ -1,0 +1,115 @@
+<div class="container">
+  <div class="header">
+    <h2>Svi CSR Zahtevi</h2>
+    <button class="btn-refresh" (click)="loadCsrs()" [disabled]="isLoading">
+      {{ isLoading ? 'Učitavam...' : 'Osveži' }}
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading">
+    <p>Učitavam CSR listu...</p>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="errorMessage && !isLoading" class="error-message">
+    <strong>Greška:</strong> {{ errorMessage }}
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!isLoading && !errorMessage && csrList.length === 0" class="empty-state">
+    <p>Nema CSR zahteva u sistemu.</p>
+  </div>
+
+  <!-- CSR List -->
+  <div *ngIf="!isLoading && csrList.length > 0" class="csr-grid">
+    <div *ngFor="let csr of csrList" class="csr-card">
+      <div class="csr-header">
+        <div class="csr-id">#{{ csr.id }}</div>
+        <div class="csr-status" [ngClass]="getStatusClass(csr.status)">
+          {{ getStatusLabel(csr.status) }}
+        </div>
+      </div>
+
+      <div class="csr-body">
+        <div class="info-row">
+          <span class="label">Issuer:</span>
+          <span class="value">{{ csr.issuerAlias || 'N/A' }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Početak važenja:</span>
+          <span class="value">{{ formatDate(csr.startDate) }}</span>
+        </div>
+
+        <div class="info-row">
+          <span class="label">Kraj važenja:</span>
+          <span class="value">{{ formatDate(csr.endDate) }}</span>
+        </div>
+
+        <div class="info-row" *ngIf="csr.certificatePath">
+          <span class="label">Sertifikat:</span>
+          <span class="value certificate-badge">✓ Kreiran</span>
+        </div>
+      </div>
+
+      <div class="csr-footer">
+        <button class="btn-view" (click)="viewCsr(csr)">Pregledaj PEM</button>
+        <button class="btn-download" (click)="downloadCsr(csr)">Preuzmi</button>
+        <button class="btn-approve" *ngIf="isPending(csr) && role !== 'ROLE_USER'" (click)="approveCSR(csr)">
+          Odobri
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PEM Modal -->
+<div *ngIf="showPemModal && selectedCsr" class="modal-overlay" (click)="closeModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h3>CSR #{{ selectedCsr.id }} - PEM Format</h3>
+      <button class="btn-close" (click)="closeModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="csr-info-grid">
+        <div class="info-item">
+          <span class="info-label">Status:</span>
+          <span class="info-value" [ngClass]="getStatusClass(selectedCsr.status)">
+            {{ getStatusLabel(selectedCsr.status) }}
+          </span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Issuer:</span>
+          <span class="info-value">{{ selectedCsr.issuerAlias || 'N/A' }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Početak:</span>
+          <span class="info-value">{{ formatDate(selectedCsr.startDate) }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Kraj:</span>
+          <span class="info-value">{{ formatDate(selectedCsr.endDate) }}</span>
+        </div>
+      </div>
+
+      <div class="pem-section">
+        <div class="pem-header">
+          <h4>CSR PEM Sadržaj</h4>
+          <button class="btn-copy" (click)="copyToClipboard(selectedCsr.csrPem)">
+            📋 Kopiraj
+          </button>
+        </div>
+        <pre class="pem-content">{{ selectedCsr.csrPem }}</pre>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <button class="btn-download-modal" (click)="downloadCsr(selectedCsr)">
+        Preuzmi CSR fajl
+      </button>
+      <button class="btn-cancel" (click)="closeModal()">Zatvori</button>
+    </div>
+  </div>
+</div>

@@ -67,6 +67,10 @@ export class ApiService {
     return this.http.get<CsrResponseDTO[]>(`${this.backendUrl}/api/csr/user`, this.getAuthHeaders());
   }
 
+  getAllCsrs(): Observable<CsrResponseDTO[]> {
+    return this.http.get<CsrResponseDTO[]>(`${this.backendUrl}/api/csr/all`, this.getAuthHeaders());
+  }
+
   approveCSR(csrId: number, issuerAlias: string): Observable<CertificateResponse> {
     const params = {
       issuerAlias: issuerAlias
@@ -93,5 +97,9 @@ export class ApiService {
     console.log('API: getOrganization called');
     console.log('API: Auth headers:', this.getAuthHeaders());
     return this.http.get<{organization: string}>(`${this.backendUrl}/users/organization`, this.getAuthHeaders());
+  }
+
+  getUserEndEntityCertificates(): Observable<CertificateResponse[]> {
+    return this.http.get<CertificateResponse[]>(`${this.backendUrl}/api/ca/user/end-entity`, this.getAuthHeaders());
   }
 }

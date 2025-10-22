@@ -1,0 +1,27 @@
+<div class="certificate-list">
+  <h2>Moji End Entity Sertifikati</h2>
+
+  <!-- Loading indicator -->
+  <div *ngIf="loading" class="loading">
+    Učitavanje sertifikata...
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error">
+    {{ error }}
+    <button (click)="loadCertificates()" class="retry-btn">Pokušaj ponovo</button>
+  </div>
+
+  <!-- Certificates list -->
+  <div *ngIf="!loading && !error && certificates.length > 0" class="certificates-grid">
+    <app-certificate-item
+      *ngFor="let certificate of certificates"
+      [cert]="certificate">
+    </app-certificate-item>
+  </div>
+
+  <!-- No certificates message -->
+  <div *ngIf="!loading && !error && certificates.length === 0" class="no-certificates">
+    Nema dostupnih End Entity sertifikata za vaš nalog.
+  </div>
+</div>

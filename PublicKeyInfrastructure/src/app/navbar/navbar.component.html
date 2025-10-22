@@ -9,6 +9,7 @@
             <div *ngIf="role === 'ROLE_USER'" class="menu">
                 <div class="menu-item"><a routerLink="password-manager">Password Manager</a></div>
                 <div class="menu-item"><a routerLink="csr">Upload CSR</a></div>
+                <div class="menu-item"><a routerLink="user-ee">End entities</a></div>
                 <div class="menu-item"><a routerLink="csr-list">My CSRs</a></div>
             </div>
 
@@ -17,15 +18,15 @@
                 <div class="menu-item"><a routerLink="all-certificates">All Certificates</a></div>
                 <div class="menu-item"><a routerLink="certificate-form">Create Certificate</a></div>
                 <div class="menu-item"><a routerLink="template-form">Create Template</a></div>
-                <div class="menu-item"><a routerLink="csr-list">Manage CSRs</a></div>
+                <div class="menu-item"><a routerLink="csr-all">Manage CSRs</a></div>
             </div>
 
             <!-- CAUser Menu-->
              <div *ngIf="role === 'ROLE_CAUSER'" class="menu">
-                <div class="menu-item"><a routerLink="all-certificates">All Certificates</a></div>
+                <div class="menu-item"><a routerLink="certificate-list">Chain Certificates</a></div>
                 <div class="menu-item"><a routerLink="certificate-form">Create Certificate</a></div>
                 <div class="menu-item"><a routerLink="template-form">Create Template</a></div>
-                <div class="menu-item"><a routerLink="csr-list">Manage CSRs</a></div>
+                <div class="menu-item"><a routerLink="csr-all">Manage CSRs</a></div>
             </div>
 
             <!-- Auth Menu -->

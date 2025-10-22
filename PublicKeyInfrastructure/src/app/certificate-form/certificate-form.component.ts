@@ -78,6 +78,8 @@ export class CertificateFormComponent implements OnInit{
   ) { }
 
   ngOnInit(): void {
+    console.log('ngOnInit called');
+    
     // Set default dates
     const today = new Date();
     const oneYearFromNow = new Date();
@@ -106,6 +108,7 @@ export class CertificateFormComponent implements OnInit{
 
     // Add initial SAN field
     this.addSAN();
+    console.log('About to call loadIssuers');
     this.loadIssuers();
     this.loadTemplates();
     
@@ -113,6 +116,7 @@ export class CertificateFormComponent implements OnInit{
     this.authService.role$.subscribe((role) => {
       console.log('Role subscription triggered, new role:', role);
       this.role = role;
+      console.log('Role set to:', this.role);
       this.checkFormDisability();
       this.loadOrganizationIfCAUSER();
     });
@@ -132,6 +136,8 @@ export class CertificateFormComponent implements OnInit{
           startDate: new Date(ca.startDate),
           endDate: new Date(ca.endDate)
         }));
+        console.log('Mapped issuers:', this.issuers);
+        console.log('Current role when calling checkFormDisability from loadIssuers:', this.role);
         this.checkFormDisability();
       },
       error: (error) => {
@@ -144,15 +150,28 @@ export class CertificateFormComponent implements OnInit{
   }
 
   checkFormDisability() {
-    // Disable form if user is ROLE_CAUSER and has no issuers
+    console.log('checkFormDisability called - role:', this.role, 'issuers.length:', this.issuers.length);
+    
+    // Disable only issuer dropdown if user is ROLE_CAUSER and has no issuers
+    // Admin users should always be able to create certificates
     if (this.role === 'ROLE_CAUSER' && this.issuers.length === 0) {
+      console.log('Disabling issuer dropdown for ROLE_CAUSER with no issuers');
       this.isFormDisabled = true;
-      this.certForm.disable();
       this.showFeedback('Nema dostupnih CA sertifikata za kreiranje. Kontaktirajte administratora.', 'error');
     } else {
+      console.log('Form enabled - role:', this.role, 'issuers available:', this.issuers.length);
       this.isFormDisabled = false;
-      this.certForm.enable();
     }
+    
+    console.log('Final isFormDisabled:', this.isFormDisabled);
+  }
+
+  // Getter for submit button disabled state - admin can always submit
+  get isSubmitDisabled(): boolean {
+    if (this.role === 'ROLE_ADMIN') {
+      return this.isLoading; // Admin can always submit, only disable when loading
+    }
+    return this.isLoading || this.isFormDisabled; // Other users follow normal logic
   }
 
   loadOrganizationIfCAUSER() {
