@@ -420,12 +420,19 @@ export class CertificateFormComponent implements OnInit{
 
     try {
       const regex = new RegExp(this.selectedTemplate.commonNameRegex);
+      console.log('CN Validation:', {
+        cnValue: cnValue,
+        regex: this.selectedTemplate.commonNameRegex,
+        testResult: regex.test(cnValue)
+      });
+      
       if (regex.test(cnValue)) {
         this.cnValidationMessage = '✓ Common Name je validan';
       } else {
         this.cnValidationMessage = '✗ Common Name ne odgovara regex-u';
       }
     } catch (error) {
+      console.error('Regex error:', error);
       this.cnValidationMessage = '✗ Greška u regex-u';
     }
   }
@@ -438,8 +445,15 @@ export class CertificateFormComponent implements OnInit{
 
     try {
       const regex = new RegExp(this.selectedTemplate.sanRegex);
+      console.log('SAN Validation:', {
+        sanList: sanList,
+        regex: this.selectedTemplate.sanRegex
+      });
+      
       const validSans = sanList.filter(san => san && san.trim() !== '' && regex.test(san));
       const invalidSans = sanList.filter(san => san && san.trim() !== '' && !regex.test(san));
+
+      console.log('SAN Results:', { validSans, invalidSans });
 
       if (invalidSans.length === 0) {
         this.sanValidationMessage = '✓ Svi SAN-ovi su validni';
@@ -447,6 +461,7 @@ export class CertificateFormComponent implements OnInit{
         this.sanValidationMessage = `✗ ${invalidSans.length} SAN-ova ne odgovara regex-u`;
       }
     } catch (error) {
+      console.error('SAN Regex error:', error);
       this.sanValidationMessage = '✗ Greška u regex-u';
     }
   }
