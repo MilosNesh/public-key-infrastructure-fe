@@ -7,6 +7,8 @@ import { CertificateResponse } from '../models/certificate-response';
 import { ExtendedRequest } from '../models/extended-request';
 import { CAWithValidityDTO } from '../models/ca-with-validity.model';
 import { CsrResponseDTO } from '../models/csr-response.model';
+import { CertificateTemplateRequestDTO, CertificateTemplateResponseDTO } from '../models/certificate-template.model';
+import { TemplateDropdownDTO } from '../models/template-dropdown.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -62,5 +64,17 @@ export class ApiService {
       issuerAlias: issuerAlias
     };
     return this.http.post<CertificateResponse>(`${this.backendUrl}/api/csr/${csrId}/approve`, null, { params });
+  }
+
+  createCertificateTemplate(request: CertificateTemplateRequestDTO): Observable<CertificateTemplateResponseDTO> {
+    return this.http.post<CertificateTemplateResponseDTO>(`${this.backendUrl}/api/templates`, request);
+  }
+
+  getTemplatesForDropdown(): Observable<TemplateDropdownDTO[]> {
+    return this.http.get<TemplateDropdownDTO[]>(`${this.backendUrl}/api/templates/dropdown`);
+  }
+
+  getTemplateById(id: number): Observable<CertificateTemplateResponseDTO> {
+    return this.http.get<CertificateTemplateResponseDTO>(`${this.backendUrl}/api/templates/${id}`);
   }
 }

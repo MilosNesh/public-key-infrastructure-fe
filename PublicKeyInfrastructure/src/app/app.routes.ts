@@ -10,6 +10,7 @@ import { PasswordManagerComponent } from './password-manager/password-manager.co
 import { CertificateFormComponent } from './certificate-form/certificate-form.component';
 import { AllCertificatesComponent } from './all-certificates/all-certificates.component';
 import { CsrListComponent } from './csr-list/csr-list.component';
+import { TemplateFormComponent } from './template-form/template-form.component';
 
 export const routes: Routes = [
     {path: "", component: HomeSrceenComponent},
@@ -22,5 +23,6 @@ export const routes: Routes = [
     {path: "password-manager", component: PasswordManagerComponent},
     {path: 'certificate-form', component: CertificateFormComponent},
     {path: 'all-certificates', component: AllCertificatesComponent},
-    {path: 'csr-list', component: CsrListComponent}
+    {path: 'csr-list', component: CsrListComponent},
+    {path: 'template-form', component: TemplateFormComponent}
 ];
