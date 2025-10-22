@@ -5,21 +5,68 @@
       <h2 class="form-title">Issue New Certificate</h2>
     </header>
 
-    <!-- Feedback Message -->
-    <div *ngIf="feedbackMessage" [class]="'feedback-message feedback-' + feedbackType">
-      {{ feedbackMessage }}
-    </div>
+    <!-- Template Selection Section -->
+    <section class="form-section">
+      <h3 class="section-title">Template Selection (Optional)</h3>
+      
+      <div class="form-group">
+        <label for="template" class="form-label">Certificate Template</label>
+        <select id="template" formControlName="templateId" (change)="onTemplateChange()" class="form-select">
+          <option value="">Select a template...</option>
+          <option *ngFor="let template of templates" [value]="template.id">{{template.label}}</option>
+        </select>
+        <small class="form-hint">Choose a template to auto-fill certificate settings</small>
+      </div>
+
+      <!-- Template info card -->
+      <div class="template-info" *ngIf="selectedTemplate">
+        <div class="template-header">
+          <div class="info-item">
+            <span class="info-label">Template:</span>
+            <span class="info-value">{{ selectedTemplate.name }}</span>
+          </div>
+          <button type="button" class="btn btn-outline btn-small" (click)="clearTemplate()">
+            Remove Template
+          </button>
+        </div>
+        <div class="info-item" *ngIf="selectedTemplate.commonNameRegex">
+          <span class="info-label">CN Regex:</span>
+          <span class="info-value">{{ selectedTemplate.commonNameRegex }}</span>
+        </div>
+        <div class="info-item" *ngIf="selectedTemplate.sanRegex">
+          <span class="info-label">SAN Regex:</span>
+          <span class="info-value">{{ selectedTemplate.sanRegex }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">TTL:</span>
+          <span class="info-value">{{ selectedTemplate.ttlDays }} days</span>
+        </div>
+      </div>
+    </section>
 
     <!-- Basic Information Section -->
     <section class="form-section">
       <h3 class="section-title">Basic Information</h3>
 
-      <div class="form-group">
-        <label for="issuer" class="form-label">Issuer CA</label>
+      <!-- Issuer dropdown - only show if no template is selected -->
+      <div class="form-group" *ngIf="!selectedTemplate">
+        <label for="issuer" class="form-label">Issuer CA *</label>
         <select id="issuer" formControlName="issuerId" (change)="onIssuerChange()" class="form-select">
           <option value="">Select an issuer...</option>
           <option *ngFor="let issuer of issuers" [value]="issuer.id">{{issuer.name}}</option>
         </select>
+      </div>
+
+      <!-- Template issuer info - show if template is selected -->
+      <div class="template-issuer-info" *ngIf="selectedTemplate">
+        <div class="info-item">
+          <span class="info-label">Issuer CA:</span>
+          <span class="info-value">{{ selectedTemplate.issuerAlias }}</span>
+        </div>
+        <div class="info-item">
+          <span class="info-label">Source:</span>
+          <span class="info-value">Template "{{ selectedTemplate.name }}"</span>
+        </div>
       </div>
 
       <!-- Policy card -->
@@ -36,15 +83,21 @@
 
       <div class="form-group">
         <label for="cn" class="form-label">Common Name (CN) *</label>
-        <input 
-          id="cn" 
-          type="text" 
-          formControlName="cn" 
-          class="form-input" 
+        <input
+          id="cn"
+          type="text"
+          formControlName="cn"
+          (input)="onCNChange()"
+          class="form-input"
           placeholder="e.g., example.com"
           [class.error]="certForm.get('cn')?.invalid && certForm.get('cn')?.touched">
         <div *ngIf="certForm.get('cn')?.invalid && certForm.get('cn')?.touched" class="error-message">
           Common Name is required
+        </div>
+        <div *ngIf="cnValidationMessage" 
+             class="validation-message" 
+             [ngClass]="{'valid': cnValidationMessage.includes('✓'), 'invalid': cnValidationMessage.includes('✗')}">
+          {{ cnValidationMessage }}
         </div>
       </div>
 
@@ -52,21 +105,21 @@
       <div class="form-row">
         <div class="form-group">
           <label for="organization" class="form-label">Organization</label>
-          <input 
-            id="organization" 
-            type="text" 
-            formControlName="organization" 
-            class="form-input" 
+          <input
+            id="organization"
+            type="text"
+            formControlName="organization"
+            class="form-input"
             placeholder="e.g., FTN">
         </div>
-        
+
         <div class="form-group">
           <label for="organizationalUnit" class="form-label">Organizational Unit</label>
-          <input 
-            id="organizationalUnit" 
-            type="text" 
-            formControlName="organizationalUnit" 
-            class="form-input" 
+          <input
+            id="organizationalUnit"
+            type="text"
+            formControlName="organizationalUnit"
+            class="form-input"
             placeholder="e.g., IT Department">
         </div>
       </div>
@@ -75,22 +128,22 @@
       <div class="form-row">
         <div class="form-group">
           <label for="country" class="form-label">Country</label>
-          <input 
-            id="country" 
-            type="text" 
-            formControlName="country" 
-            class="form-input" 
+          <input
+            id="country"
+            type="text"
+            formControlName="country"
+            class="form-input"
             placeholder="e.g., RS"
             maxlength="2">
         </div>
-        
+
         <div class="form-group">
           <label for="email" class="form-label">Email</label>
-          <input 
-            id="email" 
-            type="email" 
-            formControlName="email" 
-            class="form-input" 
+          <input
+            id="email"
+            type="email"
+            formControlName="email"
+            class="form-input"
             placeholder="e.g., intermediate@ftn.ac.rs">
         </div>
       </div>
@@ -102,10 +155,19 @@
 
       <div formArrayName="sanList" class="san-list">
         <div *ngFor="let sanCtrl of sanList.controls; let i = index" class="san-item">
-          <input [formControlName]="i" class="form-input" placeholder="DNS, IP address, or email">
+          <input [formControlName]="i" 
+                 (input)="onSANChange()"
+                 class="form-input" 
+                 placeholder="DNS, IP address, or email">
           <button type="button" class="btn btn-outline btn-small" (click)="removeSAN(i)">Remove</button>
         </div>
         <button type="button" class="btn btn-secondary" (click)="addSAN()">+ Add SAN</button>
+      </div>
+      
+      <div *ngIf="sanValidationMessage" 
+           class="validation-message" 
+           [ngClass]="{'valid': sanValidationMessage.includes('✓'), 'invalid': sanValidationMessage.includes('✗')}">
+        {{ sanValidationMessage }}
       </div>
     </section>
 
@@ -116,26 +178,28 @@
       <div class="form-row">
         <div class="form-group">
           <label for="startDate" class="form-label">Start Date</label>
-          <input 
-            id="startDate" 
-            type="date" 
-            formControlName="startDate" 
+          <input
+            id="startDate"
+            type="date"
+            formControlName="startDate"
             class="form-input"
+            [min]="minStartDate"
+            [max]="maxEndDate"
             (change)="onStartDateChange()">
         </div>
-        
+
         <div class="form-group">
           <label for="endDate" class="form-label">End Date</label>
-          <input 
-            id="endDate" 
-            type="date" 
-            formControlName="endDate" 
+          <input
+            id="endDate"
+            type="date"
+            formControlName="endDate"
             class="form-input"
             [max]="maxEndDate"
             (change)="onEndDateChange()">
         </div>
       </div>
-      
+
       <!-- Show calculated duration -->
       <div class="duration-info" *ngIf="certForm.value.startDate && certForm.value.endDate">
         <div class="info-item">
@@ -155,6 +219,7 @@
             <input
               type="checkbox"
               [value]="ku.value"
+              [checked]="isKeyUsageSelected(ku.value)"
               (change)="onCheckboxChange($event, 'keyUsages')"
               class="checkbox-input">
             <span class="checkbox-text">{{ ku.label }}</span>
@@ -173,6 +238,7 @@
             <input
               type="checkbox"
               [value]="eku.value"
+              [checked]="isExtendedKeyUsageSelected(eku.value)"
               (change)="onCheckboxChange($event, 'extendedKeyUsages')"
               class="checkbox-input">
             <span class="checkbox-text">{{ eku.label }}</span>
@@ -197,13 +263,12 @@
         <textarea id="additionalExtensions" formControlName="additionalExtensions" class="form-textarea" placeholder='{"key": "value"}'></textarea>
       </div>
 
-      <div class="form-group">
-        <label class="checkbox-label">
-          <input type="checkbox" formControlName="saveAsTemplate" class="checkbox-input">
-          <span class="checkbox-text">Save as Template</span>
-        </label>
-      </div>
     </section>
+
+       <!-- Feedback Message -->
+    <div *ngIf="feedbackMessage" [class]="'feedback-message feedback-' + feedbackType">
+      {{ feedbackMessage }}
+    </div>
 
     <!-- Submit Section -->
     <section class="form-section">

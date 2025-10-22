@@ -1,0 +1,136 @@
+<div class="template-form-container">
+  <h2>Kreiranje šablona sertifikata</h2>
+
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+    <!-- Basic Information Section -->
+    <div class="form-section">
+      <h3>Osnovne informacije</h3>
+
+      <div class="form-group">
+        <label for="name">Ime šablona *</label>
+        <input
+          id="name"
+          type="text"
+          formControlName="name"
+          placeholder="npr. FTN Server Template"
+          maxlength="128"
+          class="form-control"
+          [class.error]="form.get('name')?.invalid && form.get('name')?.touched">
+        <div class="error-message" *ngIf="form.get('name')?.invalid && form.get('name')?.touched">
+          Ime šablona je obavezno
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="issuerAlias">CA Issuer *</label>
+        <select
+          id="issuerAlias"
+          formControlName="issuerAlias"
+          class="form-control"
+          [class.error]="form.get('issuerAlias')?.invalid && form.get('issuerAlias')?.touched">
+          <option value="">-- Izaberite CA --</option>
+          <option *ngFor="let issuer of issuers" [value]="issuer">{{ issuer }}</option>
+        </select>
+        <div class="error-message" *ngIf="form.get('issuerAlias')?.invalid && form.get('issuerAlias')?.touched">
+          CA Issuer je obavezan
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="ttlDays">TTL (dani) *</label>
+        <input
+          id="ttlDays"
+          type="number"
+          formControlName="ttlDays"
+          min="1"
+          class="form-control"
+          [class.error]="form.get('ttlDays')?.invalid && form.get('ttlDays')?.touched">
+        <div class="error-message" *ngIf="form.get('ttlDays')?.invalid && form.get('ttlDays')?.touched">
+          TTL mora biti najmanje 1 dan
+        </div>
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" formControlName="enabled">
+          Omogući šablon
+        </label>
+      </div>
+    </div>
+
+    <!-- Regex Constraints Section -->
+    <div class="form-section">
+      <h3>Ograničenja (opciono)</h3>
+
+      <div class="form-group">
+        <label for="commonNameRegex">Common Name Regex</label>
+        <input
+          id="commonNameRegex"
+          type="text"
+          formControlName="commonNameRegex"
+          placeholder="npr. ^[a-z]+\.example\.com$"
+          maxlength="512"
+          class="form-control">
+        <small class="form-hint">Regex obrazac za validaciju Common Name polja</small>
+      </div>
+
+      <div class="form-group">
+        <label for="sanRegex">SAN (Subject Alternative Name) Regex</label>
+        <input
+          id="sanRegex"
+          type="text"
+          formControlName="sanRegex"
+          placeholder="npr. ^.*\.example\.com$"
+          maxlength="512"
+          class="form-control">
+        <small class="form-hint">Regex obrazac za validaciju SAN polja</small>
+      </div>
+    </div>
+
+    <!-- Key Usage Section -->
+    <div class="form-section">
+      <h3>Key Usage</h3>
+      <div class="checkbox-grid" formGroupName="keyUsage">
+        <label *ngFor="let usage of keyUsageOptions" class="checkbox-label">
+          <input type="checkbox" [formControlName]="usage">
+          <span>{{ keyUsageLabels[usage] }}</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Extended Key Usage Section -->
+    <div class="form-section">
+      <h3>Extended Key Usage</h3>
+      <div class="checkbox-grid" formGroupName="extendedKeyUsage">
+        <label *ngFor="let eku of extendedKeyUsageOptions" class="checkbox-label">
+          <input type="checkbox" [formControlName]="eku">
+          <span>{{ extendedKeyUsageLabels[eku] }}</span>
+        </label>
+      </div>
+    </div>
+
+      <!-- Feedback message -->
+  <div *ngIf="feedbackMessage"
+       class="alert"
+       [ngClass]="{
+         'alert-success': feedbackType === 'success',
+         'alert-error': feedbackType === 'error',
+         'alert-info': feedbackType === 'info'
+       }">
+    {{ feedbackMessage }}
+  </div>
+
+    <!-- Submit Button -->
+    <div class="form-actions">
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="submitting || form.invalid">
+        <span *ngIf="!submitting">Kreiraj šablon</span>
+        <span *ngIf="submitting">Kreiranje...</span>
+      </button>
+    </div>
+
+  </form>
+</div>

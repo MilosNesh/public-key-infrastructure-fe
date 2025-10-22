@@ -5,17 +5,41 @@
   <form [formGroup]="form" class="form-container">
     <!-- User ID -->
     <div class="section">
-      <h3>1. Informacije o korisniku</h3>
-      <label>
-        <span class="label-text">User ID*</span>
-        <input 
-          type="number" 
-          formControlName="userId" 
-          min="1" 
-          placeholder="ID korisnika"
-        >
-      </label>
-      <small class="hint">ID korisnika koji podnosi zahtev (kasnije će biti automatski iz sesije)</small>
+      <h3>1. Issuer</h3>
+
+      <div class="form-group">
+        <label for="issuer" class="form-label">Issuer CA</label>
+        <select id="issuer" formControlName="issuerId" (change)="onIssuerChange()" class="form-select">
+          <option value="">Select an issuer...</option>
+          <option *ngFor="let issuer of issuers" [value]="issuer.id">{{issuer.name}}</option>
+        </select>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="startDate" class="form-label">Start Date</label>
+          <input
+            id="startDate"
+            type="date"
+            formControlName="startDate"
+            class="form-input"
+            [min]="minStartDate"
+            [max]="maxEndDate"
+            (change)="onStartDateChange()">
+        </div>
+
+        <div class="form-group">
+          <label for="endDate" class="form-label">End Date</label>
+          <input
+            id="endDate"
+            type="date"
+            formControlName="endDate"
+            class="form-input"
+            [max]="maxEndDate"
+            (change)="onEndDateChange()">
+        </div>
+      </div>
+
     </div>
 
     <!-- Upload CSR fajla -->
@@ -23,9 +47,9 @@
       <h3>2. Upload CSR Fajla</h3>
       <div class="file-upload">
         <label class="file-label">
-          <input 
-            type="file" 
-            accept=".csr,.pem" 
+          <input
+            type="file"
+            accept=".csr,.pem"
             (change)="onFileSelected($event)"
             #fileInput
           >
@@ -42,10 +66,16 @@
     </div>
   </form>
 
+
+       <!-- Feedback Message -->
+    <div *ngIf="feedbackMessage" [class]="'feedback-message feedback-' + feedbackType">
+      {{ feedbackMessage }}
+    </div>
+
   <!-- Akcije -->
   <div class="actions">
-    <button 
-      (click)="onSubmit()" 
+    <button
+      (click)="onSubmit()"
       [disabled]="!uploadedCsrFile || form.invalid || issuing"
       class="primary-button"
     >

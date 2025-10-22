@@ -3,6 +3,9 @@ import { FormBuilder, FormGroup, Validators, FormArray, ReactiveFormsModule, For
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../services/api-service';
 import { ExtendedRequest, AdditionalExtension } from '../models/extended-request';
+import { CAWithValidityDTO } from '../models/ca-with-validity.model';
+import { TemplateDropdownDTO } from '../models/template-dropdown.model';
+import { CertificateTemplateResponseDTO } from '../models/certificate-template.model';
 
 interface KeyUsageOption {
   label: string;
@@ -21,6 +24,8 @@ interface IssuerOption {
   allowCA: boolean;
   allowedKeyUsages: string[];
   allowedExtendedKeyUsages: string[];
+  startDate: Date; // CA's validity start date
+  endDate: Date;   // CA's validity end date
 }
 
 @Component({
@@ -34,20 +39,32 @@ export class CertificateFormComponent implements OnInit{
     certForm!: FormGroup;
 
   issuers: IssuerOption[] = []; // load from backend
+  templates: TemplateDropdownDTO[] = []; // load from backend
+  selectedTemplate: CertificateTemplateResponseDTO | null = null;
+  cnValidationMessage: string = '';
+  sanValidationMessage: string = '';
   feedbackMessage: string = '';
   feedbackType: 'success' | 'error' | 'info' = 'info';
   isLoading: boolean = false;
   keyUsageOptions: KeyUsageOption[] = [
     { label: 'Digital Signature', value: 'digitalSignature' },
+    { label: 'Non Repudiation', value: 'nonRepudiation' },
     { label: 'Key Encipherment', value: 'keyEncipherment' },
+    { label: 'Data Encipherment', value: 'dataEncipherment' },
+    { label: 'Key Agreement', value: 'keyAgreement' },
     { label: 'Certificate Sign', value: 'keyCertSign' },
-    { label: 'CRL Sign', value: 'cRLSign' }
+    { label: 'CRL Sign', value: 'cRLSign' },
+    { label: 'Encipher Only', value: 'encipherOnly' },
+    { label: 'Decipher Only', value: 'decipherOnly' }
   ];
   extendedKeyUsageOptions: ExtendedKeyUsageOption[] = [
     { label: 'Server Auth', value: 'serverAuth' },
     { label: 'Client Auth', value: 'clientAuth' },
     { label: 'Code Signing', value: 'codeSigning' },
-    { label: 'Email Protection', value: 'emailProtection' }
+    { label: 'Email Protection', value: 'emailProtection' },
+    { label: 'Time Stamping', value: 'timeStamping' },
+    { label: 'OCSP Signing', value: 'ocspSigning' },
+    { label: 'Smartcard Logon', value: 'smartcardLogon' }
   ];
 
   constructor(private fb: FormBuilder, private apiService: ApiService) { }
@@ -59,6 +76,7 @@ export class CertificateFormComponent implements OnInit{
     oneYearFromNow.setFullYear(today.getFullYear() + 1);
 
     this.certForm = this.fb.group({
+      templateId: [''], // Template dropdown
       issuerId: [''],
       cn: ['', Validators.required],
       organization: [''],
@@ -81,19 +99,22 @@ export class CertificateFormComponent implements OnInit{
     // Add initial SAN field
     this.addSAN();
     this.loadIssuers();
+    this.loadTemplates();
   }
 
   loadIssuers() {
     this.apiService.getValidCACertificates().subscribe({
       next: (response) => {
         console.log('API Response received:', response);
-        this.issuers = response.map((alias, index) => ({
+        this.issuers = response.map((ca: CAWithValidityDTO, index) => ({
           id: index,
-          name: alias,
+          name: ca.alias,
           maxTTL: 365,
           allowCA: true,
           allowedKeyUsages: ['keyCertSign', 'cRLSign'],
-          allowedExtendedKeyUsages: []
+          allowedExtendedKeyUsages: [],
+          startDate: new Date(ca.startDate),
+          endDate: new Date(ca.endDate)
         }));
       },
       error: (error) => {
@@ -103,6 +124,112 @@ export class CertificateFormComponent implements OnInit{
         console.error('Error loading issuers:', error);
       }
     });
+  }
+
+  loadTemplates() {
+    this.apiService.getTemplatesForDropdown().subscribe({
+      next: (response) => {
+        console.log('Templates loaded:', response);
+        this.templates = response;
+      },
+      error: (error) => {
+        console.error('Error loading templates:', error);
+        this.showFeedback('Greška pri učitavanju šablona', 'error');
+      }
+    });
+  }
+
+  onTemplateChange() {
+    const templateId = this.certForm.value.templateId;
+    if (!templateId) {
+      this.selectedTemplate = null;
+      return;
+    }
+
+    this.apiService.getTemplateById(templateId).subscribe({
+      next: (template) => {
+        console.log('Template loaded:', template);
+        this.selectedTemplate = template;
+        this.applyTemplateToForm(template);
+      },
+      error: (error) => {
+        console.error('Error loading template:', error);
+        this.showFeedback('Greška pri učitavanju šablona', 'error');
+      }
+    });
+  }
+
+  applyTemplateToForm(template: CertificateTemplateResponseDTO) {
+    // Set issuer alias
+    const issuer = this.issuers.find(i => i.name === template.issuerAlias);
+    if (issuer) {
+      this.certForm.patchValue({ issuerId: issuer.id });
+    }
+
+    // Set TTL days
+    const today = new Date();
+    const endDate = new Date(today);
+    endDate.setDate(endDate.getDate() + template.ttlDays);
+    
+    this.certForm.patchValue({
+      startDate: this.formatDateForInput(today),
+      endDate: this.formatDateForInput(endDate)
+    });
+
+    // Clear and set key usages
+    const keyUsagesArray = this.certForm.get('keyUsages') as FormArray;
+    keyUsagesArray.clear();
+    
+    // Map template key usages to form values
+    const keyUsageMapping: { [key: string]: string } = {
+      'DIGITAL_SIGNATURE': 'digitalSignature',
+      'NON_REPUDIATION': 'nonRepudiation',
+      'KEY_ENCIPHERMENT': 'keyEncipherment',
+      'DATA_ENCIPHERMENT': 'dataEncipherment',
+      'KEY_AGREEMENT': 'keyAgreement',
+      'KEY_CERT_SIGN': 'keyCertSign',
+      'CRL_SIGN': 'cRLSign',
+      'ENCIPHER_ONLY': 'encipherOnly',
+      'DECIPHER_ONLY': 'decipherOnly'
+    };
+
+    template.keyUsage.forEach(ku => {
+      const formValue = keyUsageMapping[ku];
+      if (formValue) {
+        keyUsagesArray.push(new FormControl(formValue));
+      }
+    });
+
+    // Clear and set extended key usages
+    const extendedKeyUsagesArray = this.certForm.get('extendedKeyUsages') as FormArray;
+    extendedKeyUsagesArray.clear();
+    
+    // Map template extended key usages to form values
+    const extendedKeyUsageMapping: { [key: string]: string } = {
+      'SERVER_AUTH': 'serverAuth',
+      'CLIENT_AUTH': 'clientAuth',
+      'CODE_SIGNING': 'codeSigning',
+      'EMAIL_PROTECTION': 'emailProtection',
+      'TIME_STAMPING': 'timeStamping',
+      'OCSP_SIGNING': 'ocspSigning',
+      'SMARTCARD_LOGON': 'smartcardLogon'
+    };
+
+    template.extendedKeyUsage.forEach(eku => {
+      const formValue = extendedKeyUsageMapping[eku];
+      if (formValue) {
+        extendedKeyUsagesArray.push(new FormControl(formValue));
+      }
+    });
+
+    this.showFeedback(`Šablon "${template.name}" primenjen!`, 'success');
+  }
+
+  clearTemplate() {
+    this.selectedTemplate = null;
+    this.certForm.patchValue({ templateId: '' });
+    this.cnValidationMessage = '';
+    this.sanValidationMessage = '';
   }
 
   get sanList() {
@@ -122,15 +249,26 @@ export class CertificateFormComponent implements OnInit{
     const issuer = this.issuers.find(i => i.id === issuerId);
     if (!issuer) return;
 
-    // enforce max TTL by adjusting end date if needed
-    const startDate = new Date(this.certForm.value.startDate);
-    const maxEndDate = new Date(startDate);
-    maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
+    // Automatically set start date to the later of today or CA's start date
+    const today = new Date();
+    today.setHours(0, 0, 0, 0); // Reset time to midnight for accurate comparison
+    const caStartDate = new Date(issuer.startDate);
+    caStartDate.setHours(0, 0, 0, 0);
+    
+    const newStartDate = today > caStartDate ? today : caStartDate;
+    
+    // Calculate the maximum possible end date
+    const calculatedMaxEndDate = new Date(newStartDate);
+    calculatedMaxEndDate.setDate(calculatedMaxEndDate.getDate() + issuer.maxTTL);
+    
+    // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+    const effectiveMaxEndDate = calculatedMaxEndDate > issuer.endDate ? issuer.endDate : calculatedMaxEndDate;
 
-    const currentEndDate = new Date(this.certForm.value.endDate);
-    if (currentEndDate > maxEndDate) {
-      this.certForm.patchValue({ endDate: this.formatDateForInput(maxEndDate) });
-    }
+    // Set both start and end dates
+    this.certForm.patchValue({ 
+      startDate: this.formatDateForInput(newStartDate),
+      endDate: this.formatDateForInput(effectiveMaxEndDate)
+    });
 
     // optionally restrict key usages
     const filteredKU = this.certForm.value.keyUsages.filter((ku: string) =>
@@ -238,9 +376,68 @@ export class CertificateFormComponent implements OnInit{
   }
 }
 
+  onCNChange() {
+    const cnValue = this.certForm.value.cn;
+    this.validateCN(cnValue);
+  }
+
+  onSANChange() {
+    const sanList = this.certForm.value.sanList;
+    this.validateSAN(sanList);
+  }
+
+  validateCN(cnValue: string) {
+    if (!this.selectedTemplate?.commonNameRegex || !cnValue) {
+      this.cnValidationMessage = '';
+      return;
+    }
+
+    try {
+      const regex = new RegExp(this.selectedTemplate.commonNameRegex);
+      if (regex.test(cnValue)) {
+        this.cnValidationMessage = '✓ Common Name je validan';
+      } else {
+        this.cnValidationMessage = '✗ Common Name ne odgovara regex-u';
+      }
+    } catch (error) {
+      this.cnValidationMessage = '✗ Greška u regex-u';
+    }
+  }
+
+  validateSAN(sanList: string[]) {
+    if (!this.selectedTemplate?.sanRegex || !sanList || sanList.length === 0) {
+      this.sanValidationMessage = '';
+      return;
+    }
+
+    try {
+      const regex = new RegExp(this.selectedTemplate.sanRegex);
+      const validSans = sanList.filter(san => san && san.trim() !== '' && regex.test(san));
+      const invalidSans = sanList.filter(san => san && san.trim() !== '' && !regex.test(san));
+
+      if (invalidSans.length === 0) {
+        this.sanValidationMessage = '✓ Svi SAN-ovi su validni';
+      } else {
+        this.sanValidationMessage = `✗ ${invalidSans.length} SAN-ova ne odgovara regex-u`;
+      }
+    } catch (error) {
+      this.sanValidationMessage = '✗ Greška u regex-u';
+    }
+  }
+
   get selectedIssuer() {
     const issuerId = this.certForm.get('issuerId')?.value;
     return this.issuers.find(i => i.id == issuerId);
+  }
+
+  isKeyUsageSelected(value: string): boolean {
+    const keyUsagesArray = this.certForm.get('keyUsages') as FormArray;
+    return keyUsagesArray.controls.some(control => control.value === value);
+  }
+
+  isExtendedKeyUsageSelected(value: string): boolean {
+    const extendedKeyUsagesArray = this.certForm.get('extendedKeyUsages') as FormArray;
+    return extendedKeyUsagesArray.controls.some(control => control.value === value);
   }
 
   formatDateForInput(date: Date): string {
@@ -253,13 +450,22 @@ export class CertificateFormComponent implements OnInit{
     const issuer = this.issuers.find(i => i.id === issuerId);
 
     if (issuer) {
+      // Ensure start date is not before CA's start date
+      if (startDate < issuer.startDate) {
+        this.certForm.patchValue({ startDate: this.formatDateForInput(issuer.startDate) });
+        return;
+      }
+
       // If issuer has max TTL constraint, adjust end date
       const maxEndDate = new Date(startDate);
       maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
 
+      // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+      const effectiveMaxEndDate = maxEndDate > issuer.endDate ? issuer.endDate : maxEndDate;
+
       const currentEndDate = new Date(this.certForm.value.endDate);
-      if (currentEndDate < startDate || currentEndDate > maxEndDate) {
-        this.certForm.patchValue({ endDate: this.formatDateForInput(maxEndDate) });
+      if (currentEndDate < startDate || currentEndDate > effectiveMaxEndDate) {
+        this.certForm.patchValue({ endDate: this.formatDateForInput(effectiveMaxEndDate) });
       }
     }
   }
@@ -274,8 +480,18 @@ export class CertificateFormComponent implements OnInit{
       const maxEndDate = new Date(startDate);
       maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
 
-      if (endDate > maxEndDate) {
-        this.certForm.patchValue({ endDate: this.formatDateForInput(maxEndDate) });
+      // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+      const effectiveMaxEndDate = maxEndDate > issuer.endDate ? issuer.endDate : maxEndDate;
+
+      if (endDate > effectiveMaxEndDate) {
+        this.certForm.patchValue({ endDate: this.formatDateForInput(effectiveMaxEndDate) });
+        return;
+      }
+
+      // Ensure end date is not after CA's end date
+      if (endDate > issuer.endDate) {
+        this.certForm.patchValue({ endDate: this.formatDateForInput(issuer.endDate) });
+        return;
       }
     }
 
@@ -294,9 +510,20 @@ export class CertificateFormComponent implements OnInit{
     if (issuer) {
       const maxEndDate = new Date(startDate);
       maxEndDate.setDate(maxEndDate.getDate() + issuer.maxTTL);
-      return this.formatDateForInput(maxEndDate);
+      
+      // The actual max end date is the minimum of calculated maxEndDate and CA's endDate
+      const effectiveMaxEndDate = maxEndDate > issuer.endDate ? issuer.endDate : maxEndDate;
+      return this.formatDateForInput(effectiveMaxEndDate);
     }
 
+    return '';
+  }
+
+  get minStartDate(): string {
+    const issuer = this.selectedIssuer;
+    if (issuer) {
+      return this.formatDateForInput(issuer.startDate);
+    }
     return '';
   }
 

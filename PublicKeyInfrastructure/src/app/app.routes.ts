@@ -7,9 +7,10 @@ import { RecoverComponent } from './auth/recover/recover.component';
 import { HomeSrceenComponent } from './home-srceen/home-srceen.component';
 import { PasswordFormComponent } from './password-form/password-form.component';
 import { PasswordManagerComponent } from './password-manager/password-manager.component';
-import { CertificateListComponent } from './certificate-list/certificate-list.component';
 import { CertificateFormComponent } from './certificate-form/certificate-form.component';
 import { AllCertificatesComponent } from './all-certificates/all-certificates.component';
+import { CsrListComponent } from './csr-list/csr-list.component';
+import { TemplateFormComponent } from './template-form/template-form.component';
 
 export const routes: Routes = [
     {path: "", component: HomeSrceenComponent},
@@ -20,7 +21,8 @@ export const routes: Routes = [
     {path: 'csr', component: CsrFormComponent},
     {path: "password-form", component: PasswordFormComponent},
     {path: "password-manager", component: PasswordManagerComponent},
-    {path: 'certificates', component: CertificateListComponent},
     {path: 'certificate-form', component: CertificateFormComponent},
-    {path: 'all-certificates', component: AllCertificatesComponent}
+    {path: 'all-certificates', component: AllCertificatesComponent},
+    {path: 'csr-list', component: CsrListComponent},
+    {path: 'template-form', component: TemplateFormComponent}
 ];
