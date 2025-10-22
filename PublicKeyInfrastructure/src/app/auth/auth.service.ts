@@ -6,6 +6,7 @@ import { LoginDetails } from '../models/login-details.model';
 import { RecoveryData } from '../models/recovery-data.model';
 import { jwtDecode } from 'jwt-decode';
 import { Router } from '@angular/router';
+import { LoginResponse } from '../models/login-response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -22,8 +23,8 @@ export class AuthService {
     return this.http.post<User>("https://localhost:8084/auth/register", user);
   }
 
-  public login(loginDetails: LoginDetails) : Observable<string> {
-    return this.http.post("https://localhost:8084/auth/login", loginDetails, { responseType: 'text'})
+  public login(loginDetails: LoginDetails) : Observable<LoginResponse> {
+    return this.http.post<LoginResponse>("https://localhost:8084/auth/login", loginDetails)
   }
 
   public recover(recoveryData: RecoveryData, token: string): Observable<string> {
