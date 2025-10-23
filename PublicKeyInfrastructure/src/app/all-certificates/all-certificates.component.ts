@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-all-certificates',
-  imports: [ CertificateListComponent, EndEntityListComponent ],
+  imports: [ CertificateListComponent, 
+    // EndEntityListComponent
+   ],
   templateUrl: './all-certificates.component.html',
   styleUrl: './all-certificates.component.css'
 })

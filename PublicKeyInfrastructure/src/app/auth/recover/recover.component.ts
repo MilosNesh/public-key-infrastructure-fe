@@ -83,6 +83,7 @@ export class RecoverComponent {
       this.authService.recover(recoveryData, this.token).subscribe({
         next: (res) => {
           this.authService.logout()
+          localStorage.setItem("mustChangePassword", String(false));
           this.router.navigate(["login"]);
         },
          error: (err: HttpErrorResponse) => {
